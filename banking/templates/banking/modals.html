@@ -1,0 +1,390 @@
+<script>
+$(document).ready(function() {
+
+    '{% if user %}'
+    $("#bodyhere").show();
+    $("#credentialsHere").hide();
+    '{% else %}'
+    $("#bodyhere").hide();
+    $("#credentialsHere").show();
+    '{% endif %}'
+    $.ajaxSetup({ headers: { 'X-CSRFToken': '{{ csrf_token }}' } });
+
+
+    $("#payLoan").click(function() {
+
+        Swal.fire({
+            title: 'Pay Loan',
+            html: '<input id="amount1" placeholder="Amount" type="number" required class="swal2-input">' +
+                '<input id="code1" type="password" placeholder="Secret Code" required class="swal2-input">',
+            focusConfirm: false,
+            showCancelButton: true,
+            showLoaderOnConfirm: true,
+            allowOutsideClick: false,
+            confirmButtonText: "Withdraw",
+            preConfirm: () => {
+                if ($("#amount1").val() > 0) {
+
+                    if (!$("#code1").val()) {
+                        Swal.showValidationMessage('Code Required');
+                    } else {
+
+                        $.ajax({
+                                url: "{% url 'pay' %}",
+                                type: 'POST',
+                                data: {
+                                    amount: $("#amount1").val(),
+                                    securecode: $("#code1").val(),
+                                },
+                            })
+                            .done(function(data) {
+                                $("#balance").html("$" + data.UserBalance)
+                                $("#totalloaned").html("$" + data.TotalLoan)
+                                $("#payables").html("$" + data.loanPayable)
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: `Loan Payment Successful your new loan balance is $${data.loanPayable}`,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                            })
+                            .fail(function(data) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: `${data.responseText}`,
+                                    footer: '<a href>Why do I have this issue?</a>'
+                                })
+
+                            })
+                    }
+
+
+                } else {
+                    Swal.showValidationMessage('Amount Must Be Greater Than Zero');
+                }
+
+            }
+        })
+
+    });
+
+
+
+    $("#transfer").click(function() {
+
+        Swal.fire({
+            title: 'Transfer',
+            html: '<input id="amount1" placeholder="Amount" type="number" required class="swal2-input">' +
+                '<input id="code1" type="password" placeholder="Secret Code" required class="swal2-input">' +
+                '<input id="accNumber" placeholder="Receiver Account Number" type="number" required class="swal2-input">',
+            focusConfirm: false,
+            showCancelButton: true,
+            showLoaderOnConfirm: true,
+            allowOutsideClick: false,
+            confirmButtonText: "Transfer",
+            preConfirm: () => {
+                if ($("#amount1").val() > 0) {
+
+                    if (!$("#code1").val()) {
+                        Swal.showValidationMessage('Code Required');
+                    } else {
+
+                        if (!$("#accNumber").val()) {
+
+                            Swal.showValidationMessage('Receiver Account Number Required');
+                        } else {
+                            $.ajax({
+                                    url: "{% url 'trans' %}",
+                                    type: 'POST',
+                                    data: {
+                                        amount: $("#amount1").val(),
+                                        securecode: $("#code1").val(),
+                                        useracc: $("#accNumber").val(),
+                                    },
+                                })
+                                .done(function(data) {
+                                    $("#balance").html("$" + data.UserBalance)
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: `Transfer successful your balance is $${data.UserBalance}`,
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                })
+                                .fail(function(data) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: `${data.responseText}`,
+                                        footer: '<a href>Why do I have this issue?</a>'
+                                    })
+
+                                })
+                        }
+
+
+                    }
+
+
+                } else {
+                    Swal.showValidationMessage('Amount Must Be Greater Than Zero');
+                }
+
+            }
+        })
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+    $("#withdraw").click(function() {
+
+        Swal.fire({
+            title: 'Withdraw Money',
+            html: '<input id="amount1" placeholder="AMOUNT" type="number" required class="swal2-input">' +
+                '<input id="code1" type="password" placeholder="Secret Code" required class="swal2-input">',
+            focusConfirm: false,
+            showCancelButton: true,
+            showLoaderOnConfirm: true,
+            allowOutsideClick: false,
+            confirmButtonText: "Withdraw",
+            preConfirm: () => {
+                if ($("#amount1").val() > 0) {
+
+                    if (!$("#code1").val()) {
+                        Swal.showValidationMessage('Code Required');
+                    } else {
+
+                        $.ajax({
+                                url: "{% url 'withdraw' %}",
+                                type: 'POST',
+                                data: {
+                                    amount: $("#amount1").val(),
+                                    securecode: $("#code1").val(),
+                                },
+                            })
+                            .done(function(data) {
+                                $("#balance").html("$" + data)
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: `Withdraw Successful your new balance is $${data}`,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                            })
+                            .fail(function(data) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: `${data.responseText}`,
+                                    footer: '<a href>Why do I have this issue?</a>'
+                                })
+
+                            })
+                    }
+
+
+                } else {
+                    Swal.showValidationMessage('Amount Must Be Greater Than Zero');
+                }
+
+            }
+        })
+
+    });
+
+
+    $("#loan").click(function(event) {
+
+
+        Swal.fire({
+            title: 'Loan Money',
+            html: '<input id="amount" type="number" placeholder="Amount" required class="swal2-input">' +
+                '<input id="code" type="password" placeholder="Secret Code" required class="swal2-input">' +
+                '<input id="yearsToPay" type="number" placeholder="Years to pay" required class="swal2-input">',
+            focusConfirm: false,
+            showCancelButton: true,
+            showLoaderOnConfirm: true,
+            allowOutsideClick: false,
+            confirmButtonText: "Loan Money",
+            preConfirm: () => {
+                if ($("#amount").val() > 0) {
+
+                    if (!$("#code").val()) {
+                        Swal.showValidationMessage('Code Required');
+                    } else {
+
+                        if ($("#yearsToPay").val() > 0) {
+                            $.ajax({
+                                    url: "{% url 'loans' %}",
+                                    type: 'POST',
+                                    data: {
+                                        amount: $("#amount").val(),
+                                        securecode: $("#code").val(),
+                                        yearstoPay: $("#yearsToPay").val(),
+                                    },
+                                })
+                                .done(function(data) {
+
+
+                                    $("#balance").html("$" + data.UserBalance)
+                                    $("#totalloaned").html("$" + data.TotalLoan)
+                                    $("#payables").html("$" + data.loanPayable)
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: `Loan Successful your new balance is $${data.UserBalance}`,
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    })
+                                })
+                                .fail(function(data) {
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: `${data.responseText}`,
+                                        footer: '<a href>Why do I have this issue?</a>'
+                                    })
+
+                                })
+
+                        } else {
+                            Swal.showValidationMessage('Years to Pay Must Be Greater Than Zero');
+                        }
+
+                    }
+
+
+                } else {
+                    Swal.showValidationMessage('Amount Must Be Greater Than Zero');
+                }
+
+            }
+        })
+
+    });
+
+
+});
+
+
+$("#deposit").click(function() {
+    Swal.fire({
+        title: 'Deposit Money',
+        html: '<input id="amount" type="number" placeholder="Amount" required class="swal2-input">' +
+            '<input id="code" type="password" placeholder="Secret Code" required class="swal2-input">',
+        focusConfirm: false,
+        showCancelButton: true,
+        showLoaderOnConfirm: true,
+        allowOutsideClick: false,
+        confirmButtonText: "Deposit",
+        preConfirm: () => {
+            if ($("#amount").val() > 0) {
+
+                if (!$("#code").val()) {
+                    Swal.showValidationMessage('Code Required');
+                } else {
+                    $.ajax({
+                            url: "{% url 'deposit' %}",
+                            type: 'POST',
+                            data: {
+                                amount: $("#amount").val(),
+                                securecode: $("#code").val(),
+                            },
+                        })
+                        .done(function(data) {
+                            $("#balance").html("$" + data)
+                            Swal.fire({
+                                icon: 'success',
+                                title: `Deposit Successful your new balance is $${data}`,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        })
+                        .fail(function(data) {
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: `${data.responseText}`,
+                                footer: '<a href>Why do I have this issue?</a>'
+                            })
+
+                        })
+                }
+
+
+            } else {
+                Swal.showValidationMessage('Amount Must Be Greater Than Zero');
+            }
+
+        }
+    })
+
+
+});
+
+
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                } else {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    $.ajax({
+                            url: "{% url 'credentialsInsert' %}",
+                            type: 'POST',
+                            data: {
+                                fname: $("#fname").val(),
+                                lname: $("#lname").val(),
+                                mname: $("#mname").val(),
+                                Province: $("#Province").val(),
+                                City: $("#City").val(),
+                                Street: $("#Street").val(),
+                                zip: $("#zip").val()
+                            },
+                        })
+                        .done(function(data) {
+                            $("#bodyhere").show();
+                            $("#credentialsHere").hide();
+                            window.location.href = "";
+                        })
+                        .fail(function(data) {
+
+
+
+                        })
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+function showkey() {
+  var x = document.getElementById("key");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+}
+</script>
