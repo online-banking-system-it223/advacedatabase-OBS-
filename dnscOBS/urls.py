@@ -28,4 +28,4 @@ urlpatterns = [
 ]
 
 handler404 = 'banking.views.error_404'
-# handler500 = 'banking.views.error_500'
+handler500 = 'banking.views.error_500'
