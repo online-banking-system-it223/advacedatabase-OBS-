@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '7d^c&&ag94n8y2#@y$ckv-yhs^%ylhl^z@+$#(6a-zocr&zh#-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -54,6 +54,7 @@ API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"
 
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -94,16 +95,28 @@ WSGI_APPLICATION = 'dnscOBS.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'banking_system',
+#         'USER': 'banking',
+#         'PASSWORD': 'cs2dlink',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'banking_system',
-        'USER': 'banking',
-        'PASSWORD': 'cs2dlink',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': 'dd2hg5iusddo5v',
+        'USER': 'rutcnvbxgzhtkt',
+        'PASSWORD': '1bc444e66716749b4c4463253b4215dc5ec85d1bd52d4eb34676527b40141b02',
+        'HOST': 'ec2-35-174-88-65.compute-1.amazonaws.com',
+        'PORT': '5432',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -148,6 +161,15 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-
+# https://docs.djangoproject.com/en/1.11/howto/static-files/
+PROJECT_ROOT   =   os.path.join(os.path.abspath(__file__))
+STATIC_ROOT  =   os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
+
+# Extra lookup directories for collectstatic to find static files
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
+#  Add configuration for static files storage using whitenoise
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

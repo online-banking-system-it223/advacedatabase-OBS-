@@ -26,3 +26,6 @@ urlpatterns = [
     path('', include('banking.urls')),
     # path('api/', include(router.urls)),
 ]
+
+handler404 = 'banking.views.error_404'
+handler500 = 'banking.views.error_500'

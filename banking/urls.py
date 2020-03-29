@@ -19,3 +19,4 @@ urlpatterns = [
     path('api/payments/sale/<int:paymentid>/',views.paymentHateoas,name='parent_payment'),
     path('api/payments/sale/<int:paymentid>/cancel/',views.paymentCancel,name='payment_cancel'),
 ]
+

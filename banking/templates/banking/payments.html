@@ -219,7 +219,7 @@ display: inline !important;
                                     </div>
                                 </div>
                                 <div class="page-title-actions">
-                                    <button class="ladda-button btn btn-pill btn-wide btn-alternate" data-style="expand-right"><span class="ladda-label">Get Api Key</span><span class="ladda-spinner"></span></button>
+                                    <a href="{% url 'index' %}"><button class="ladda-button btn btn-pill btn-wide btn-alternate" data-style="expand-right"><span class="ladda-label">Get Api Key</span><span class="ladda-spinner"></span></button></a>
                                 </div>
                             </div>
                         </div>
@@ -452,11 +452,6 @@ curl --location --request POST 'http://192.168.1.6:8888/api/payments' \
             "href": "http://192.168.1.6:8888/api/payments/sale/7",
             "rel": "self",
             "method": "GET"
-        },
-        {
-            "href": "http://192.168.1.6:8888/api/payments/sale/7/refund",
-            "rel": "refund",
-            "method": "POST"
         },
         {
             "href": "http://192.168.1.6:8888/api/payments/sale/7/cancel",

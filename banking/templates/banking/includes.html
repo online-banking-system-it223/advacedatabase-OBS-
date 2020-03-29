@@ -159,7 +159,7 @@
                                                             <div class="form-row">
                                                                 <div class="col-md-6">
                                                                 {%for x in account %}
-                                                                <input class="ml-2 form-control" style="width: 150px;" readonly value="{{x.api_key}}" name="key" id="key" type="password" onclick="showkey()" onmouseout="showkey()" onmouseenter="showkey()">
+                                                                <input class="ml-2 form-control" style="width: 250px;" readonly value="{{x.api_key}}" name="key" id="key" type="password" onclick="showkey()" onmouseout="showkey()" onmouseenter="showkey()">
                                                                 {%endfor%}
                                                                 </div>
                                                                 
@@ -202,10 +202,11 @@
                                             <div class="grid-menu grid-menu-2col">
                                                 <div class="no-gutters row">
                                                     <div class="col-sm-6">
-                                                        <button class="btn-icon-vertical btn-transition btn-transition-alt pt-2 pb-2 btn btn-outline-warning">
+                                                        <a href="{% url 'payments' %}"><button class="btn-icon-vertical btn-transition btn-transition-alt pt-2 pb-2 btn btn-outline-warning">
                                                             <i class="pe-7s-chat icon-gradient bg-amy-crisp btn-icon-wrapper mb-2"></i>
-                                                            Message Inbox
+                                                            Docs
                                                         </button>
+                                                        </a>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <button class="btn-icon-vertical btn-transition btn-transition-alt pt-2 pb-2 btn btn-outline-danger">
@@ -215,15 +216,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ul class="nav flex-column">
-                                                <li class="nav-item-divider nav-item">
-                                                </li>
-                                                <li class="nav-item-btn text-center nav-item">
-                                                    <button class="btn-wide btn btn-primary btn-sm">
-                                                        Open Messages
-                                                    </button>
-                                                </li>
-                                            </ul>
+                                           
                                         </div>
                                     </div>
                                 </div>
