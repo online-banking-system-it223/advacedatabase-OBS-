@@ -12,6 +12,7 @@ from rest_framework_api_key.models import APIKey
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 import urllib.request
+from django.contrib import messages
 
 def connect(host='http://google.com'):
     try:

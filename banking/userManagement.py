@@ -44,6 +44,7 @@ class RegisterUser:
 					user_id=user,
 					api_key=key
 					)
+				accountObject.save()
 
 				cardObject = bankingCard(
 					card_number=creditNum,
@@ -53,7 +54,7 @@ class RegisterUser:
 					)
 
 				cardObject.save()
-				accountObject.save()
+				
 
 			return user
 
@@ -247,7 +248,7 @@ class getUserDetails:
 		except ObjectDoesNotExist:
 			return False
 
-	def getUserTransactionList(self,accountId=None):
+	def getUserTransactionList(self,accountId):
 		try:
 			transactions = transaction.objects.filter(account_id=accountId)
 			return transactions
