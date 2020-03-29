@@ -18,12 +18,11 @@ from django.urls import path, include
 from rest_framework import routers
 from banking import views
 
-router = routers.DefaultRouter()
-router.register(r'creditscards' ,views.CreditCard, basename='bankingCard')
-router.register(r'credentials' ,views.userCredentials, basename='userCred')
+# router = routers.DefaultRouter()
+# router.register(r'pendingpayments' ,views.UnconfirmedPayments, basename='unconfirmed')
+# router.register(r'credentials' ,views.userCredentials, basename='userCred')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('banking.urls')),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('apis_', include(router.urls)),
+    # path('api/', include(router.urls)),
 ]

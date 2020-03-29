@@ -370,6 +370,12 @@ $("#deposit").click(function() {
                         })
                         .fail(function(data) {
 
+                               Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: `${data.responseText}`,
+                                footer: '<a href>Why do I have this issue?</a>'
+                            })
 
 
                         })
@@ -379,12 +385,56 @@ $("#deposit").click(function() {
         });
     }, false);
 })();
+
 function showkey() {
-  var x = document.getElementById("key");
-  if (x.type === "password") {
-    x.type = "text";
-  } else {
-    x.type = "password";
-  }
+    var x = document.getElementById("key");
+    if (x.type === "password") {
+        x.type = "text";
+    } else {
+        x.type = "password";
+    }
+}
+
+function confirmpayment(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Confirm Payment",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Confirm it!'
+    }).then((result) => {
+        if (result.value) {
+
+
+            $.ajax({
+                    url: "{% url 'confirm' %}",
+                    type: 'POST',
+                    data: {paymentid:id},
+                })
+                .done(function(data) {
+                Swal.fire(
+                'Payment Confirmed!',
+                `Payment # ${data}`,
+                'success'
+                )
+
+                $("#trid"+id).hide();
+                })
+                .fail(function(data) {
+
+                       Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: `${data.responseText}`,
+                                footer: '<a href>Why do I have this issue?</a>'
+                            })
+
+
+                })
+           
+        }
+    })
 }
 </script>

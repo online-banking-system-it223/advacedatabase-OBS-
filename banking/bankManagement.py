@@ -1,4 +1,4 @@
-from .models import logs, transaction, loans, notifications, bankingCard, apiTransaction
+from .models import logs, transaction, loans, notifications, bankingCard, apiTransaction, ApiPayments, cancelledPayments
 from django.core.exceptions import ObjectDoesNotExist
 import random, string, datetime, decimal
 from datetime import date
@@ -7,6 +7,7 @@ from .userManagement import getUserDetails
 from django.http import HttpResponse
 from math import floor, ceil
 from cryptography.fernet import Fernet
+from django.utils import timezone
 class bankingMethod:
 	"""docstring for bankTransfer"""
 	def __init__(self):
@@ -18,26 +19,26 @@ class bankingMethod:
 
 		#METHOD FOR TRANSFERING FUND
 	def methodTransfer(self,account_number,accountId,amount):
-		#GET SENDER ID
+		
 		sender = self.userObjects.getUserAccountDetails(accountId)
-		#GET RECEIVER ID
-		receiver = self.userObjects.getUserCredentials(account_number)
-		#GET SENDER BALANCE
+		
+		receiver = self.userObjects.getUserAccountDetails2(account_number)
+		
 		senderBalance = self.userObjects.getUserBalance(accountId)
-		#GET RECEIVER BALANCE
+		
 		receiverBalance = self.userObjects.getUserBalance(account_number)
 
 		for x in sender:
 			senderAccNumber = x.account_number
+			senderBalance = x.account_balance
 
 		for x in receiver:
 			receiverAccNumber = x.account_number
+			receiverBalance = x.account_balance
 
-		senderBalance = self.userObjects.getUserBalance(senderAccNumber)
+		# senderBalance = self.userObjects.getUserBalance(senderAccNumber)
 
-		receiverBalance = self.userObjects.getUserBalance(receiverAccNumber)
-
-
+		# receiverBalance = self.userObjects.getUserBalance(receiverAccNumber)
 
 		#CHECK IF THE RECEIVER IS FOUND
 		if not receiver:
@@ -260,7 +261,6 @@ class bankingMethod:
 			)
 
 		else:
-			print("change")
 			change = 0
 
 
@@ -292,14 +292,9 @@ class bankingMethod:
 
 		return True
 
-	def externalApiAccount(self,amount,creditcard,cvc,companyacc):
-		cards = bankingCard.objects.filter(card_number=creditcard,cvc=cvc)
-
-		if not cards:
-			return False
-		for x in cards:
-			userid = x.user_id.id
-			payeraccNumber = x.user_id.account_number
+	def confirmPayment(self,amount,sellerId,payerID,payerAccNumber,sellerAccNumber,objectInstance,invoiceId):
+		userid = payerID
+		payeraccNumber = payerAccNumber
 
 		userInformation = self.userObjects.getUserInformation(userid)
 
@@ -314,31 +309,18 @@ class bankingMethod:
 			postal_code = x.postal_code
 			email  = x.user_id.email
 
-		companyInstance = self.userObjects.getUserCredentials(companyacc)
+		companyInstance = self.userObjects.getUserAccountDetails2(sellerAccNumber)
 
-		payerInstance = self.userObjects.getUserCredentials(payeraccNumber)
-
-		for x in payerInstance:
-			accNumber = x.account_number
-			client_secret = x.user_id.secure_code
-
-
-
+		payerInstance = self.userObjects.getUserAccountDetails2(payeraccNumber)
+		
+		companyBalance = self.userObjects.getUserBalance(sellerAccNumber)
 
 		payerBalance = self.userObjects.getUserBalance(payeraccNumber)
-		
-		companyBalance = self.userObjects.getUserBalance(companyacc)
-
-		if payerBalance < amount:
-			return "Non-sufficient funds!"
-
-		payerBalancenewBalance = payerBalance - amount
 
 		companyBalancenewBalance = companyBalance + amount
 
-		self.userObjects.updateUserBalance(payerBalancenewBalance,payeraccNumber)
+		self.userObjects.updateUserBalance(companyBalancenewBalance,sellerAccNumber)
 
-		self.userObjects.updateUserBalance(companyBalancenewBalance,companyacc)
 
 		#SEND NOTIFICATION TO RECEIVER
 		notifObject = self.notifier.sendNotif('Received Payment',
@@ -349,18 +331,17 @@ class bankingMethod:
 
 		#SEND NOTIFICATION TO SENDER
 		notifObject2 = self.notifier.sendNotif('Payment',
-			f'You have Paid {amount} to {companyacc}. \
-			Your new balance is {floor(payerBalancenewBalance)}',
+			f'You have confirmed your payment amounting: {amount} to {sellerAccNumber}.',
 			payerInstance.first(),payerInstance.first()
 			)
 
 		#RECORD TRANSACTION
 		transacObject = self.transac.transac(
-			'Paid Something',companyInstance.first(),amount,payerBalancenewBalance,payerInstance.first()
+			'Paid Something',companyInstance.first(),amount,payerBalance,payerInstance.first()
 			)
 
 		transacObject2 = self.transac.transac(
-			"Received Payment",companyInstance.first(),amount,companyBalancenewBalance,companyInstance.first(),cards.first()
+			"Received Payment",companyInstance.first(),amount,companyBalancenewBalance,companyInstance.first()
 			)
 
 		#RECORD  LOGS
@@ -375,18 +356,217 @@ class bankingMethod:
 
 	
 		context = {"id":transacObject2.id,"intent":"Sale","amount":float(amount),"amount_capturable":float(amount),\
-			"amount_received":float(amount),"capture_method":"automatic","client_secret":client_secret,\
-			"confirmation_method":"automatic","created":str(datetime.now()),"currency":"PHP","fname":fname,\
+			"amount_received":float(amount),"capture_method":"automatic",\
+			"confirmation_method":"manual","created":str(datetime.now()),"currency":"PHP","fname":fname,\
 			"lname":lname,"mname":mname,"street":street,"city":city,"province":province,\
 			"barrangay":barrangay,"postal_code":postal_code,"email":email,"description":None,\
-			"invoice":None,"last_payment_error":None,"payment_method_types":"Card","status":True}
+			"invoice":invoiceId,"last_payment_error":None,"payment_method_types":"Card","status":True}
 			
 		api = apiTransaction(
 			owner=companyInstance.first(),
-			parentTransaction=transacObject2,
+			parentTransaction=objectInstance.first(),
 			transaction=context
 			)
 		api.save()
+		return True
+
+	def confirmPendingPayment(self,paymentID):
+		objectInstance = ApiPayments.objects.filter(pk=paymentID,deleted=False)
+
+
+		for x in objectInstance:
+			payerAccID = x.payer.id
+			sellerAccID = x.seller.id
+			payerAccNumber = x.payer.account_number
+			sellerAccNumber = x.seller.account_number
+			amount = x.amount
+			isnotPending = x.pending
+			invoiceId = x.invoiceId
+
+		if isnotPending == True:
+			return 2
+		else:
+			bankInstance = self.confirmPayment(amount,sellerAccID,payerAccID,payerAccNumber,sellerAccNumber,objectInstance,invoiceId)
+
+		if bankInstance:
+			ApiPayments.objects.filter(pk=paymentID,deleted=False).update(pending=True,dateConfirmed=timezone.now())
+
+		return bankInstance
+
+	def cancelPayment(self,paymentID,paymentInstance):
+
+		
+
+		for x in paymentInstance:
+			paymentID = x.id
+			userid = x.payer.id
+			userBalance = x.payer.account_balance
+			userAccNumber = x.payer.account_number
+			amountReceivable = x.amount
+			invoiceId = x.invoiceId
+			sellerAccNumber = x.seller.account_number
+			sellerBalance = x.seller.account_balance
+
+		ApiPaymentsInstance = ApiPayments.objects.filter(pk=paymentID)
+		userInformation = self.userObjects.getUserInformation(userid)
+
+		for x in userInformation:
+			fname = x.fname
+			lname = x.lname
+			mname = x.mname
+			street = x.street
+			city = x.city
+			province = x.province
+			barrangay = x.barrangay
+			postal_code = x.postal_code
+			email  = x.user_id.email
+
+		newUserBalance = userBalance + amountReceivable
+
+		self.userObjects.updateUserBalance(newUserBalance,userAccNumber)
+
+		payerInstance = self.userObjects.getUserAccountDetails2(userAccNumber)
+
+		companyInstance = self.userObjects.getUserAccountDetails2(sellerAccNumber)
+
+
+		ApiPaymentsInstance.update(deleted=True)
+
+        #SEND NOTIFICATION TO RECEIVER
+		notifObject = self.notifier.sendNotif(
+			'Payment Cancelled',
+			f'A payment amounting {amountReceivable} has been cancelled by.\
+			 {fname} {lname}',
+			payerInstance.first(),companyInstance.first()
+			)
+
+		#SEND NOTIFICATION TO SENDER
+		notifObject2 = self.notifier.sendNotif('Payment',
+			f'The payment to {sellerAccNumber} has been cancelled. The amount of {amountReceivable} \
+			was transfered back to your account',
+			payerInstance.first(),payerInstance.first()
+			)
+
+		#RECORD TRANSACTION
+		transacObject = self.transac.transac(
+			'Cancelled Payment',companyInstance.first(),amountReceivable,newUserBalance,payerInstance.first()
+			)
+
+		transacObject2 = self.transac.transac(
+			"Cancelled Payment",companyInstance.first(),amountReceivable,sellerBalance,companyInstance.first()
+			)
+
+		#RECORD  LOGS
+		self.logger.insertLogs(
+			'Cancelled',payerInstance.first(),notifObject2,transacObject
+			)
+
+		self.logger.insertLogs(
+			'Cancelled',companyInstance.first(),notifObject,transacObject2
+			)
+
+
+		context = {"Msg":"Payment Has been cancelled","date":str(timezone.now()),
+			"data":[{"id":transacObject2.id,
+			"intent":"Cancel","amount":float(amountReceivable),\
+        	"amount_capturable":float(amountReceivable),\
+			"amount_received":0.00,"capture_method":"automatic",\
+			"confirmation_method":"manual","created":str(datetime.now()),"currency":"PHP","fname":fname,\
+			"lname":lname,"mname":mname,"street":street,"city":city,"province":province,\
+			"barrangay":barrangay,"postal_code":postal_code,"email":email,"description":None,\
+			"invoice":invoiceId,"last_payment_error":None,"payment_method_types":"Card","status":True}]}
+
+		api = apiTransaction(
+			owner=companyInstance.first(),
+			parentTransaction=ApiPaymentsInstance.first(),
+			transaction=context
+			)
+		deleteInstance = cancelledPayments(Payment=ApiPaymentsInstance.first(),transaction=context)
+		deleteInstance.save()
+		api.save()
+
+		return context
+	def recordPaymentRequest(self,amount,creditcard,cvv,companyacc,charge,expidate,apikey):
+
+		companyInstance = self.userObjects.getUserAccountDetails2(companyacc)
+		if not companyInstance:
+			return 2
+
+		for x in companyInstance:
+			companyKey = x.api_key
+
+		if apikey != companyKey:
+			return 3
+
+		cards = bankingCard.objects.filter(card_number=creditcard,cvv=cvv)
+
+		if not cards:
+			return 8
+
+		for x in cards:
+			payerId = x.user_id.id
+			payeraccNumber = x.user_id.account_number
+			payerBalance = x.user_id.account_balance
+			expiDate = x.expiration_date
+			isDisabled = x.isDisabled
+			isLocked = x.user_id.isLocked
+
+		if isLocked:
+			return 1
+
+		if payerBalance < amount:
+			return 4
+
+
+
+		if isDisabled:
+			return 5
+
+		if expiDate == datetime.now():
+			return 6
+
+		inputDate = datetime.strptime(expidate, '%Y-%m-%d')
+		inputMonth = inputDate.strftime("%m")
+		inputYear = inputDate.strftime("%Y")
+		cardMonth = expiDate.strftime("%m")
+		cardYear = expiDate.strftime("%Y")
+
+		if inputMonth != cardMonth or inputYear != cardYear:
+			return 7
+
+		payerInstance = self.userObjects.getUserAccountDetails2(payeraccNumber)
+
+
+
+		paymentInstance = ApiPayments(
+			invoiceId = charge,
+			amount = amount,
+			payer = payerInstance.first(),
+			seller = companyInstance.first(),
+			dateCreated = datetime.now(),
+			)
+
+		paymentInstance.save()
+
+		payerBalancenewBalance = payerBalance - amount
+
+		self.userObjects.updateUserBalance(payerBalancenewBalance,payeraccNumber)
+
+		self.notifier.sendNotif('Account Deducted',
+			f'You have Deducted {amount}. \
+			Your new balance is {floor(payerBalancenewBalance)}',
+			payerInstance.first(),payerInstance.first()
+			)
+
+		context = {"Msg":"Payment has been saved. Waiting confirmation from the user",
+			"status":True,"requestId":paymentInstance.id,"date":str(datetime.now()),
+			"amount":float(amount),"invoice_id":charge,"confirmed":False,
+			"links":[
+			{'href':f'http://192.168.1.6:8888/api/payments/sale/{paymentInstance.id}',
+				'rel':'self','method':'GET'},
+			{'href':f'http://192.168.1.6:8888/api/payments/sale/{paymentInstance.id}/cancel',
+			'rel':'cancel','method':'POST'}]}
+
 		return context
 
 	def userLoanInsert(self,pamount,inte,ldate,ddate,number,accid,tranid):

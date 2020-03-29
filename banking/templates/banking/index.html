@@ -24,7 +24,7 @@ We keep you and your money safe. Maybe...
                     <div>
                         {% for x in Card %}
                         <h5 class="menu-header-title">Card Number:{{x.card_number}}</h5>
-                        <h6 class="menu-header-subtitle">Cvv:{{x.cvc}}</h6>
+                        <h6 class="menu-header-subtitle">Cvv:{{x.cvv}}</h6>
                         {% endfor %}
                     </div>
                    
@@ -39,8 +39,7 @@ We keep you and your money safe. Maybe...
         <div class="card-header-title font-size-lg text-capitalize font-weight-normal">
             <i class="header-icon lnr-charts icon-gradient bg-happy-green"> </i>
             Account number:
-            {%for x in account %} {{x.account_number}} <input class="ml-5" style="outline: none;" readonly value="{{x.api_key}}" id="key" type="password">
-            <input class="ml-3" type="checkbox" onclick="showkey()">Show Key
+            {%for x in account %} {{x.account_number}}
             {%endfor%}
         </div>
     </div>
@@ -249,12 +248,8 @@ We keep you and your money safe. Maybe...
 <div class="row">
     <div class="col-md-12">
         <div class="main-card mb-3 card">
-            <div class="card-header">Check List
+            <div class="card-header">Pending Payments
                 <div class="btn-actions-pane-right">
-                    <div role="group" class="btn-group-sm btn-group">
-                        <button class="active btn btn-focus">Last Week</button>
-                        <button class="btn btn-focus">All Month</button>
-                    </div>
                 </div>
             </div>
             <div class="table-responsive">
@@ -262,16 +257,20 @@ We keep you and your money safe. Maybe...
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
-                            <th>Name</th>
-                            <th class="text-center">City</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Sales</th>
+                            <th>Invoice ID</th>
+                            <th class="text-center">Confirmed</th>
+                            <th class="text-center">Amount</th>
+                            <th class="text-center">Date Created</th>
+                            <th class="text-center">Merchant Account Number</th>
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="text-center text-muted">#55</td>
+
+                        {% if payments %}
+                        {% for x in payments %}
+                        <tr id="trid{{x.id}}">
+                            <td class="text-center text-muted">{{x.id}}</td>
                             <td>
                                 <div class="widget-content p-0">
                                     <div class="widget-content-wrapper">
@@ -280,23 +279,28 @@ We keep you and your money safe. Maybe...
                                                 <img width="40" class="rounded-circle" src="assets/images/avatars/1.jpg" alt=""></div>
                                         </div>
                                         <div class="widget-content-left flex2">
-                                            <div class="widget-heading">Vinnie Wagstaff</div>
-                                            <div class="widget-subheading opacity-7">UI Designer</div>
+                                            <div class="widget-heading">{{x.invoiceId}}</div>
+                                            
                                         </div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center">Amsterdam</td>
+                            <td class="text-center"><div class="badge badge-info">{{x.pending}}</div></td>
                             <td class="text-center">
-                                <div class="badge badge-info">On Hold</div>
+                                {{x.amount}}
                             </td>
+                            <td class="text-center">{{x.dateCreated}}</td>
                             <td class="text-center" style="width: 150px;">
-                                <div id="sparkline-chart9"></div>
+                               {{x.seller.account_number}}
                             </td>
+                            
                             <td class="text-center">
-                                <button type="button" id="PopoverCustomT-4" class="btn btn-primary btn-sm">Details</button>
+                                <button type="button" onclick="confirmpayment({{x.id}})" class="btn btn-success btn-sm">Confirm</button>
                             </td>
                         </tr>
+                        {% endfor %}
+                        {% else %}
+                        {% endif %}
                     </tbody>
                 </table>
             </div>

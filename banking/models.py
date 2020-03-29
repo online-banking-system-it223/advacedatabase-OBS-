@@ -144,7 +144,7 @@ class bankingCard(models.Model):
 		("PR", "Prepaid"),)
 
 	card_number = models.CharField(max_length=19,unique=True)
-	cvc = models.IntegerField()
+	cvv = models.IntegerField()
 	expiration_date = models.DateField(('DATE'))
 	isDisabled = models.BooleanField(default=False)
 	cardType = models.CharField(max_length = 5,choices = typeschoices, default = STANDARD)
@@ -219,13 +219,34 @@ class logs(models.Model):
 	def __str__(self):
 		return self.event_name
 
+class ApiPayments(models.Model):
+	"""
+	This model is for payment confirmation. 
+	"""
+	invoiceId = models.CharField(max_length=50)
+	pending = models.BooleanField(default=False)
+	amount = models.DecimalField(max_digits = 30, decimal_places = 5)
+	payer = models.ForeignKey(account,on_delete=models.CASCADE,related_name="payer")
+	seller = models.ForeignKey(account,on_delete=models.CASCADE,related_name="seller")
+	dateCreated = models.DateTimeField(('DATE'),auto_now_add=True)
+	dateConfirmed = models.DateTimeField(('DATE'),null=True)
+	deleted = models.BooleanField(default=False)
+	def __str__(self):
+		return self.invoiceId		
+
 class apiTransaction(models.Model):
 	"""docstring for apiTransaction"""
 	owner = models.ForeignKey(account,on_delete=models.CASCADE,related_name="transactionOwner")
-	parentTransaction = models.ForeignKey(transaction,on_delete=models.CASCADE,related_name="parent_transaction")
+	parentTransaction = models.ForeignKey(ApiPayments,on_delete=models.CASCADE,related_name="parent_transaction")
 	transaction = JSONField()
 
 	def __int__(self):
 		return self.owner.account_number
 
-		
+class cancelledPayments(models.Model):
+	"""docstring for cencelledPayments"""
+	Payment = models.ForeignKey(ApiPayments,on_delete=models.CASCADE,related_name="parent_payment")
+	dateCancelled = models.DateTimeField(('DATE'),auto_now_add=True)
+	transaction = JSONField()
+	def __str__(self):
+		return self.dateCancelled

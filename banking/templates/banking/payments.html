@@ -77,6 +77,7 @@ pre[class*="language-"] {
     word-break: normal;
     font-size: 0.95em;
     line-height: 1.2em;
+    word-wrap: break-word;
 
     -moz-tab-size: 4;
     -o-tab-size: 4;
@@ -106,6 +107,8 @@ pre[class*="language-"] {
     border: 1px solid #dddddd;
     background-color: white;
 }
+
+
 
 :not(pre) > code[class*="language-"],
 pre[class*="language-"] {
@@ -180,6 +183,24 @@ pre[class*="language-"] {
 .token.italic {
     font-style: italic;
 }
+
+@media (max-width: 480px) {
+
+  code{
+    font-size: 10px !important;
+  }
+}
+
+@media (max-width: 991.98px){
+
+.app-inner-layout .app-inner-layout__wrapper{
+position: relative !important;
+flex-direction: row !important;
+min-height: 100vh !important;
+display: inline !important;
+}
+}
+
 </style>
     <link rel="stylesheet" href="{% static 'banking/main.css' %}" />
 
@@ -188,13 +209,13 @@ pre[class*="language-"] {
         <div class="app-container">
             <div class="app-main__inner p-0">
                 <div class="app-inner-layout chat-layout">
-                    <div class="app-inner-layout__header text-white bg-premium-dark">
+                    <div class="app-inner-layout__header bg-happy-green header-text-light">
                         <div class="app-page-title">
                             <div class="page-title-wrapper">
                                 <div class="page-title-heading">
                                     <div class="page-title-icon bg-happy-fisher"><i class="bg-mean-fruit fas fa-fw"></i></div>
-                                    <div>DNSC OBS Developer
-                                        <div class="page-title-subheading">REST API</div>
+                                    <div><span style="color:white;">Bank of Dnsc</span>
+                                        <div class="page-title-subheading" style="color: white;">REST API</div>
                                     </div>
                                 </div>
                                 <div class="page-title-actions">
@@ -204,12 +225,15 @@ pre[class*="language-"] {
                         </div>
                     </div>
                     <div class="app-inner-layout__wrapper row-fluid no-gutters">
-                        <div class="app-inner-layout__sidebar bg-transparent card">
+                        <div class="app-inner-layout__sidebar bg-transparent card" style="position: sticky !important;">
                             <div class="p-3">
                                 <div class="dropdown-menu nav p-0 dropdown-menu-inline dropdown-menu-rounded dropdown-menu-hover-primary">
                                     <h6 tabindex="-1" class="pt-0 dropdown-header">Integration Guides</h6>
+                                    <a href="#tab-faq-1" data-toggle="tab" tabindex="0" class="mb-1 dropdown-item show active" aria-expanded="true">How Card works</a>
                                     <a href="#tab-faq-2" data-toggle="tab" tabindex="0" class="mb-1 dropdown-item show" aria-expanded="true">Rest Payment</a>
-                        
+                                    <a href="#tab-faq-3" data-toggle="tab" tabindex="0" class="mb-1 dropdown-item show" aria-expanded="true">API Request</a>
+
+                                    <a href="#tab-faq-4" data-toggle="tab" tabindex="0" class="mb-1 dropdown-item show" aria-expanded="true">API Response</a>
                                 </div>
                             </div>
                         </div>
@@ -222,165 +246,615 @@ pre[class*="language-"] {
                                         </span>
                                     </button>
                                 </div>
-                                <div class="tab-content">
-                                    <div class="tab-pane show active" id="tab-faq-2">
-                                        <h4>Payments REST API</h4>
-                                        <h1>Dnsc Obs Payments</h1>
-                                        <div class="divider"></div>
-                                        <p>Use the Payments API to easily and securely accept online and mobile Dnsc Obs payments. You can enable customers to make Dnsc Obs payments with only a few clicks. A completed payment is known as a sale.</p>
-                                        <div class="mt-5"></div>
-                                        <h1>Integration steps</h1>
-                                        <table class="table table-hovered">
-                                            <thead style="visibility: hidden;">
-                                                <tr>
-                                                    <th></th>
-                                                    <th></th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1.</td>
-                                                    <td>Required</td>
-                                                    <td><a href="#set-up-your-development-environment" pa-marked="1">Set up your development environment</a>.</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2.</td>
-                                                    <td>Required</td>
-                                                    <td><a pa-marked="1">Create Dnsc Obs payment</a>.</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>3.</td>
-                                                    <td>Required</td>
-                                                    <td><a pa-marked="1">Execute payment</a>.</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <div class="mt-5"></div>
-                                        <h2 id="set-up-your-development-environment">Set up your development environment</h2>
-                                        <p>Before you can integrate Payments, you must set up your development environment. After you get a token that lets you access protected REST API resources, you create sandbox accounts to test your web and mobile apps.</p>
-                                        <div class="mt-5"></div>
-                                        <h2>Create Dnsc Obs payment</h2>
-                                        <p>After you collect the payment details from the customer, specify the payment details in a <code>/payment</code> call.</p>
-                                        <p>In the request URI, set the <code>Authorization</code>.</p>
-                                        <p>In the JSON request body, set the <code>intent</code> to <code>sale</code></p>
-                                        <p>And the <code>accountnumber</code> to your bank account number</p>
-                                        <div class="mt-5"></div>
-                                        <div class="alert alert-danger">
-                                            Important: You cannot run the following if you dont replace all call-specific parameter values, such as tokens and IDs, with your own values.
-                                        </div>
-                                        <h5>PHP-Sample Code</h5>
-                                        <pre>
+<div class="tab-content">
+    <div class="tab-pane show" id="tab-faq-2">
+
+<h4>Payments REST API</h4>
+
+<h1>Bank of Dnsc Payments</h1>
+
+<div class="divider"></div>
+
+<p>Use the Payments API to easily and securely accept online and mobile Dnsc Obs payments. You can enable customers to make Dnsc Obs payments with only a few clicks. A completed payment is known as a sale.</p>
+
+<div class="mt-5"></div>
+
+<h1>Integration steps</h1>
+
+<table class="table table-hovered">
+    <thead style="visibility: hidden;">
+        <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1.</td>
+            <td>Required</td>
+            <td><a href="#set-up-your-development-environment" pa-marked="1">Set up your development environment</a>.</td>
+        </tr>
+        <tr>
+            <td>2.</td>
+            <td>Required</td>
+            <td><a href="{% url 'register' %}">Create Bank of dnsc Account</a>.</td>
+        </tr>
+        <tr>
+            <td>3.</td>
+            <td>Required</td>
+            <td><a pa-marked="1">Execute payment</a>.</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="mt-5"></div>
+
+<h2 id="set-up-your-development-environment">Set up your development environment</h2>
+
+<p>Before you can integrate Payments, you must set up your development environment. After you get a token that lets you access protected REST API resources.</p>
+
+<div class="mt-5"></div>
+
+<h2 id="set-up-your-development-environment">Obtain Api Key</h2>
+
+<p>Bank of Dnsc authenticates your API requests using your account’s API keys. If you do not include your key when making an API request, or use one that is incorrect or outdated, Bank of Dnsc returns an error.</p>
+
+<div class="mt-5"></div>
+
+<h2 id="set-up-your-development-environment">Obtaining your API keys</h2>
+
+<p>Your API keys are available in the Dashboard.</p>
+
+<img class="img-fluid" src="{% static 'banking/images/docs/apikeylocation.png'%}" alt="">
+
+<div class="mt-5"></div>
+
+<h2>Create Dnsc Obs payment</h2>
+
+<p>After you collect the payment details from the customer, specify the payment details in a 
+<code>/payment</code> call.</p>
+
+<table class="table table-hovered">
+    <thead style="visibility: hidden;">
+        <tr>
+            <th>Param</th>
+            <th>Required</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>X-Api-Key</code></td>
+            <td>Required</td>
+            <td>Your Secret Api Key</td>
+        </tr>
+        <tr>
+            <td><code>cvv</code></td>
+            <td>Required</td>
+            <td>The customer CVV</td>
+        </tr>
+        <tr>
+            <td><code>cardnumber</code></td>
+            <td>Required</td>
+            <td>The customer Card number</td>
+        </tr>
+
+        <tr>
+            <td><code>intent</code></td>
+            <td>Required</td>
+            <td>For Payment the intent must be set to : Sale. <span class="text-danger"><strong>Note: It is case sensitive</strong></span></td>
+        </tr>
+
+        <tr>
+            <td><code>amount</code></td>
+            <td>Required</td>
+            <td>The amount of the sale.</td>
+        </tr>
+
+        <tr>
+            <td><code>accountnumber</code></td>
+            <td>Required</td>
+            <td>Your company account number.</td>
+        </tr>
+        <tr>
+            <td><code>invoiceid</code></td>
+            <td>Required</td>
+            <td>The transaction invoice ID</td>
+        </tr>
+
+        <tr>
+            <td><code>expiration</code></td>
+            <td>Required</td>
+            <td>The card expiration Date. You can use date time or Date. The server will only check the month and year of the expiration date</td>
+        </tr>
+    
+    </tbody>
+</table>
+<div class="mt-5"></div>
+<div class="alert alert-danger">
+    Important: You cannot run the following if you dont replace all call-specific parameter values, such as tokens and IDs, with your own values.
+</div>
+<h5>PHP-Sample Code</h5>
+<div class="col-sm-12 col-md-12">
+<pre>
 <code class="language-php" style="font-size: 20px">
 &lt?php
 error_reporting(0);
-function payment($cvc,$cardnumber,$amount) {
+
 $curl = curl_init();
 curl_setopt_array($curl, array(
-CURLOPT_URL => "http://127.0.0.1:8888/payment",
+CURLOPT_URL => "http://192.168.1.6:8888/api/payments",
 CURLOPT_RETURNTRANSFER => true,
 CURLOPT_ENCODING => "",
 CURLOPT_MAXREDIRS => 10,
 CURLOPT_TIMEOUT => 0,
 CURLOPT_FOLLOWLOCATION => true,
 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-CURLOPT_CUSTOMREQUEST => "GET",
+CURLOPT_CUSTOMREQUEST => "POST",
 CURLOPT_HTTPHEADER => array(
-    "API-KEY: ",
-    "intent: Sale",
-    "cvc:".$cvc."",
-    "cardnumber:".$cardnumber."",
-    "amount:".$amount."",
-    "accountnumber:"
-  ),
+    "X-Api-Key: ",
+    "cvv: ",
+    "cardnumber: ",
+    "intent: ",
+    "amount: ",
+    "accountnumber: ",
+    "invoiceid: ",
+    "expiration: "
+),
 ));
+
 $response = curl_exec($curl);
+
 curl_close($curl);
 
-return $response;
-}
-
+echo $response;
 ?&gt
 </code>
 
 </pre>
-                                        <h5>Jquery-Sample Code</h5>
-                                        <pre>
-<code class="language-javascript" style="font-size: 20px">
+</div>
+<h1>Code for cURL</h1>
+<div class="col-sm-12 col-md-12">
+<pre>
+<code class="language-http" style="font-size: 20px">
+curl --location --request POST 'http://192.168.1.6:8888/api/payments' \
+--header 'X-Api-Key: ' \
+--header 'cvv: ' \
+--header 'cardnumber: ' \
+--header 'intent: ' \
+--header 'amount: ' \
+--header 'accountnumber: ' \
+--header 'invoiceid: ' \
+--header 'expiration: '
+</code>
 
-&ltscript&gt
-var settings = {
-"url": "http://127.0.0.1:8000/payment",
-"method": "GET",
-"timeout": 0,
-"headers": {
-"API-KEY": ,
-"cvc": ,
-"cardnumber": ,
-"intent": "Sale",
-"amount": ,
-"accountnumber": ""
-},
-};
-
-$.ajax(settings).done(function (response) {
-  console.log(response);
-});
-&lt/script&gt
-</code>  
 </pre>
-                                        <div class="mt-5"></div>
-                                        <p>Dnsc Obs returns a <em><strong>PaymentIntent</strong></em> object in response to your API request.</p>
-                                        <pre>
+</div>
+<div class="alert alert-danger">
+    Important: Use environment variables for the important informations. Like your Api key.
+</div>
+<div class="mt-5"></div>
+<p>Dnsc Obs returns a <em><strong>PaymentIntent</strong></em> object in response to your API request.</p>
+<pre class="language-javascript" data-jsonp="…">
 
-<code class="language-php" style="font-size: 20px">
+<code  style="font-size: 20px">
 {
-    "id": 37,
-    "intent": "Sale",
+    "Msg": "Payment has been saved. Waiting confirmation from the user",
+    "status": true,
+    "requestId": 7,
+    "date": "2020-03-27 11:02:28.657559",
     "amount": 0.0,
-    "amount_capturable": 0.0,
-    "amount_received": 0.0,
-    "capture_method": "automatic",
-    "client_secret": 123,
-    "confirmation_method": "automatic",
-    "created": "2020-03-24 20:03:17.366292",
-    "currency": "PHP",
-    "fname": "John",
-    "lname": "Doe",
-    "mname": "Quijano",
-    "street": "Prk Pogata",
-    "city": "Panabo",
-    "province": "Davao Del Norte",
-    "barrangay": "None",
-    "postal_code": 8105,
-    "email": "johndoe@gmail.com",
-    "description": null,
-    "invoice": null,
-    "last_payment_error": null,
-    "payment_method_types": "Card",
-    "status": true
+    "invoice_id": "1",
+    "confirmed": false,
+    "links": [
+        {
+            "href": "http://192.168.1.6:8888/api/payments/sale/7",
+            "rel": "self",
+            "method": "GET"
+        },
+        {
+            "href": "http://192.168.1.6:8888/api/payments/sale/7/refund",
+            "rel": "refund",
+            "method": "POST"
+        },
+        {
+            "href": "http://192.168.1.6:8888/api/payments/sale/7/cancel",
+            "rel": "cancel",
+            "method": "POST"
+        }
+    ]
 }
 </code>
 </pre>
-                                        <div class="mt-5"></div>
-                                        <h1>Error List</h1>
+<p>Now that the payment intent is received by the server. The client will be notified and will need to confirm the payment first before it gets transfer to your bank account. You can also cancel the unconfirmed payments.</p>
 
 
-                                         <div class="mt-5"></div>
-                                        <p>The api will return the following error</p>
+</div>
+
+
+
+<div class="tab-pane show active" id="tab-faq-1">
+<h4>How cards work</h4>
+<br>
+<h6>See how a credit or debit card payment works online, step by step.</h6>
+<br>
+<p>Cards are one of the most popular ways to pay online, with broad global reach. There are different types of cards and several steps in the process. To build a Dnsc Bank integration that supports all of your customers, see what goes on behind the scenes of a card payment.</p>
+<div class="main-card mb-3 card">
+    <div class="card-body">
+        <div class="vertical-time-simple vertical-without-time vertical-timeline vertical-timeline--animate vertical-timeline--one-column">
+            <div class="vertical-timeline-item vertical-timeline-element">
+                <div>
+                    <span class="vertical-timeline-element-icon bounce-in"></span>
+                    <div class="vertical-timeline-element-content bounce-in">
+                        <h4 class="timeline-title">Checking card details</h4>
+                        <p>Bank of Dnsc checks that the details provided are formatted correctly (e.g., the expiry date is not in the past). There is no guarantee that the card itself is valid yet.</p>
+                        <img class="img-fluid" src="{% static 'banking/images/docs/collect-card-details.svg'%}" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="vertical-timeline-item vertical-timeline-element">
+                <div><span class="vertical-timeline-element-icon bounce-in"></span>
+                    <div class="vertical-timeline-element-content bounce-in">
+                        <h4>Customer authentication</h4>
+                        <p>Bank of Dnsc prompt the customer to authenticate a purchase (e.g., by texting the customer a code to enter on the bank's website).</p>
+                        <img class="img-fluid" src="{% static 'banking/images/docs/authenticate-card.svg'%}" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="vertical-timeline-item vertical-timeline-element">
+                <div><span class="vertical-timeline-element-icon bounce-in"></span>
+                    <div class="vertical-timeline-element-content bounce-in">
+                        <h4 class="timeline-title">Authorization</h4>
+                        <p>The bank checks for sufficient funds and, if successful, holds the amount on the customer’s account to guarantee it for the merchant.</p>
+                        <img class="img-fluid" src="{% static 'banking/images/docs/authorized-card.svg'%}" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="vertical-timeline-item vertical-timeline-element">
+                <div><span class="vertical-timeline-element-icon bounce-in"></span>
+                    <div class="vertical-timeline-element-content bounce-in">
+                        <h4 class="timeline-title text-success">Capture</h4>
+                        <p>The money moves from the issuing bank to the merchant's account.</p>
+                        <img class="img-fluid" src="{% static 'banking/images/docs/captured-card.svg'%}" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+                                    <div class="tab-pane show" id="tab-faq-3">
+                                        <h3>API Requests</h3>
+                                        <br>
+                                        <p>
+                                            To make a REST API request, you combine the HTTP
+                                            <code>GET</code>,
+                                            <code>POST</code>,
+                                            <code>PUT</code>,
+                                            <code>PATCH</code>,
+                                            or
+                                            <code>DELETE</code>
+                                            method, the URL to the API service, the URI to a resource to query, submit data to, update, or delete, and one or more.
+                                        </p>
+                                        <br>
+                                        <p>The URL to the API service is:</p>
+                                        <ul>
+                                            <li><code>http://192.168.1.6:8888</code></li>
+                                        </ul>
+                                        <br>
+                                        <p>Optionally, you can include <a href="">query parameters</a> on <code>GET</code> calls to filter, limit the size of, and sort the data in the responses.</p>
+                                        <br>
+                                        <p>Most <code>GET</code>, <code>POST</code>, <code>PUT</code>, and <code>PATCH</code> calls require a JSON request body.</p>
+                                        <br>
+                                        <h4>This sample request lists Payments:</h4>
+                                        <br>
                                         <pre>
+<code class="language-php" style="font-size: 20px">
+&lt?php
 
-<code class="language-php" style="font-size: 16px">
-{"Msg":"API KEY ERROR","status":False,"errcode":401} - Returns if the Api key is invalid
+$curl = curl_init();
 
-{"Msg":"Intent Error, Please Set your intent into 'Sale' ","status":False,"errcode":402} - Returns if the intent is not sale
+curl_setopt_array($curl, array(
+  CURLOPT_URL => "http://192.168.1.6:8888/paymentslist?querysize=10",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => array(
+    "X-Api-Key: ",
+    "accountnumber: ",
+  ),
+));
 
-{"Msg":'Non-sufficient funds!',"status":False,"errcode":412} - Returns if the user has not enough funds in the account
+$response = curl_exec($curl);
 
-{"Msg":"Credit Card Credentials Error","status":False,"errcode":405} - Returns if the card details is invalid
+curl_close($curl);
+echo $response;
+?&gt
 </code>
+
 </pre>
-                                    </div>
+<h1>Integration steps</h1>
+<table class="table table-hovered">
+ <thead>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td><code>querysize</code></td>
+        <td>integer</td>
+        <td>The number of items to list in the response.</td>
+    </tr>
+    <tr>
+        <td><code>offset</code></td>
+        <td>integer</td>
+        <td>Starting point to return rows from a result set.</td>
+    </tr>
+    <tr>
+        <td><code>end_time</code></td>
+        <td>Date</td>
+        <td>The end date and time for the range to show in the response, in Internet date and time format. For example, end_time=2020-03-06T11:00:00Z.</td>
+    </tr>
+</tbody>
+</table>
+</div>
+<div class="tab-pane show" id="tab-faq-4">
+    <h1>API Responses</h1>
+    <br>
+    <p>Bank of Dnsc API calls return HTTP status codes and its custom status codes. Some API calls also return JSON response bodies that include information about the resource including one or more contextual HATEOAS links. Use these links to request more information about and construct an API flow that is relative to a specific request. Each REST API request returns an HTTP status code</p>
+    <br>
+    <h1><strong>HTTP status codes</strong></h1>
+    <br>
+    <p>For successful requests, PayPal returns HTTP <code>2XX</code> status codes.</p>
+    <br>
+    <p>For failed requests, PayPal returns HTTP <code>4XX</code> or <code>5XX</code> status codes.</p>
+
+    <br>
+    <h4>Bank of Dnsc returns these HTTP status codes:</h4>
+     <div class="mt-5"></div>
+     <div class="table-responsive">
+    <table class="table table-hovered">
+ <thead>
+    <tr>
+        <th>Status Code</th>
+        <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+<tr>
+    <td><code>200 OK</code></td>
+    <td>The request succeeded.</td>
+</tr>
+<tr>
+    <td><code>201 Created</code></td>
+    <td>A POST method successfully created a resource. If the resource was already created by a previous execution of the same method, for example, the server returns the HTTP 200 OK status code.</td>
+</tr>
+<tr>
+    <td><code>202 Accepted</code></td>
+    <td>The server accepted the request and will execute it later.</td>
+</tr>
+<tr>
+    <td><code>202 Accepted</code></td>
+    <td>The server accepted the request and will execute it later.</td>
+</tr>
+<tr>
+    <td><code>204 No Content</code></td>
+    <td>The server accepted the request and will execute it later.</td>
+</tr>
+<tr>
+    <td><code>400 Bad Request</code></td>
+    <td>INVALID_REQUEST. Request is not well-formed, syntactically incorrect, or violates schema.</td>
+</tr>
+<tr>
+    <td><code>401 Unauthorized</code></td>
+    <td>AUTHENTICATION_FAILURE. Authentication failed due to invalid authentication credentials.</td>
+</tr>
+<tr>
+    <td><code>403 Forbidden</code></td>
+    <td>NOT_AUTHORIZED. Authorization failed due to insufficient permissions.</td>
+</tr>
+<tr>
+    <td><code>404 Not Found</code></td>
+    <td>RESOURCE_NOT_FOUND. The specified resource does not exist.</td>
+</tr>
+<tr>
+    <td><code>405 Method Not Allowed</code></td>
+    <td>METHOD_NOT_SUPPORTED. The server does not implement the requested HTTP method.</td>
+</tr>
+<tr>
+    <td><code>406 Not Acceptable</code></td>
+    <td>MEDIA_TYPE_NOT_ACCEPTABLE. The server does not implement the media type that would be acceptable to the client.</td>
+</tr>
+
+<tr>
+    <td><code>415 Unsupported Media Type</code></td>
+    <td>UNSUPPORTED_MEDIA_TYPE. The server does not support the request payload’s media type.</td>
+</tr>
+
+<tr>
+    <td><code>422 Unprocessable Entity</code></td>
+    <td>UNPROCESSABLE_ENTITY. The API cannot complete the requested action, or the request action is semantically incorrect or fails business validation.</td>
+</tr>
+
+<tr>
+    <td><code>429 Unprocessable Entity</code></td>
+    <td>RATE_LIMIT_REACHED. Too many requests. Blocked due to rate limiting.</td>
+</tr>
+
+<tr>
+    <td><code>500 Internal Server Error</code></td>
+    <td>INTERNAL_SERVER_ERROR. An internal server error has occurred.</td>
+</tr>
+
+<tr>
+    <td><code>503 Service Unavailable</code></td>
+    <td>SERVICE_UNAVAILABLE. Service Unavailable.</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+<br>
+<h5>For all errors except Identity errors, PayPal returns an error response body that includes additional error details in this format.</h5>
+<br>
+<div class="alert alert-info">
+    <strong>Note:</strong> Some types of errors also include a details array.
+</div>
+<br>
+                                       <pre>
+<code class="language-json" style="font-size: 20px">
+{
+  "name": "ERROR_NAME",
+  "message": "ERROR_DESCRIPTION",
+  "information_link": "ERROR_DOCUMENTATION_LINK",
+  "details": [
+  {
+    "field": "field_name",
+    "issue": "problem_with_field"
+  }]
+}
+</code>
+
+</pre>
+
+<br>
+<h5>The response body for Identity errors includes additional error details in this format:</h5>
+<br>
+ <pre>
+<code class="language-json" style="font-size: 20px">
+{
+  "error": "ERROR_NAME",
+  "error_description": "ERROR_DESCRIPTION"
+}
+</code>
+
+</pre>
+<br>
+<h1>Validation errors</h1>
+<br>
+<h5>For validation errors, PayPal returns the HTTP <code>400 Bad Request</code> status code.</h5>
+<br>
+<p>To prevent validation errors, ensure that parameters are the right type and conform to constraints:</p>
+<br>
+<table class="table table-hovered">
+ <thead>
+    <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>Character</td>
+        <td>Names, addresses, and phone numbers have maximum character limits.</td>
+      
+    </tr>
+    <tr>
+        <td>Numeric</td>
+        <td>Credit cards, amounts, and card verification value (CVV) must use non-negative numeric values and have required formats. For example, a CVV must be three or four numbers while a credit card number must contain only numbers.</td>
+      
+    </tr>
+    <tr>
+        <td>Monetary</td>
+        <td>Use the right currency.</td>
+    </tr>
+</tbody>
+</table>
+<br>
+<h1>Authorization errors</h1>
+
+<br>
+<p>For authorization errors, PayPal returns the HTTP <code> 401 Unauthorized</code> status code.</p>
+<p>Access token-related issues often cause authorization errors.</p>
+<p>Ensure that the access token is valid and present and not expired.</p>
+<br>
+<h1>HATEOAS links</h1>
+<h5>Hypermedia as the Engine of Application State (HATEOAS) is a constraint of the REST application architecture that distinguishes it from other network application architectures.</h5>
+<br>
+<p>This excerpt from a sample response shows an array of HATEOAS links:</p>
+<br>
+ <pre>
+<code class="language-javascript" style="font-size: 20px">
+{  
+  {
+    "Msg": "Payment has been saved. Waiting confirmation from the user",
+    "status": true,
+    "requestId": 7,
+    "date": "2020-03-27 11:02:28.657559",
+    "amount": 0.0,
+    "invoice_id": "1",
+    "confirmed": false,
+    "links": [
+        {
+            "href": "http://192.168.1.6:8888/api/payments/sale/7",
+            "rel": "self",
+            "method": "GET"
+        },
+        {
+            "href": "http://192.168.1.6:8888/api/payments/sale/7/refund",
+            "rel": "refund",
+            "method": "POST"
+        },
+        {
+            "href": "http://192.168.1.6:8888/api/payments/sale/7/cancel",
+            "rel": "cancel",
+            "method": "POST"
+        }
+    ]
+}
+}
+</code>
+
+</pre>
+<br>
+<p>Use the links in this example, as follows:</p>
+<br>
+<ul>
+    <li>To get more information about the request, combine the <code>GET</code> method and the target <code>href</code> of the <code>self</code> link.</li>
+    <li>To request a refund, combine the <code>POST</code> method and the target <code>href</code> of the <code>refund</code> link.</li>
+    <li>To get information about the parent payment, combine the <code>GET</code> method and the target <code>href</code> of the <code>parent_payment</code> link.</li>
+</ul>
+<br>
+<p>The elements in each <code>link</code> object in the <code>links</code> array are:</p>
+
+<br>
+<table class="table table-hovered">
+ <thead>
+    <tr>
+        <th>Element</th>
+        <th>Required</th>
+        <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td><code>href</code></td>
+        <td>Required</td>
+        <td>The complete target URL, or link, to combine with the HTTP <code>method</code> to make the related call. <code>href</code> is the key HATEOAS component that links a completed call with a subsequent call.</td>
+      
+    </tr>
+    <tr>
+        <td><code>rel</code></td>
+        <td>Required</td>
+        <td>The link relationship type, or how the <code>href</code> link relates to the previous call.</td>
+      
+    </tr>
+    <tr>
+        <td><code>method</code></td>
+        <td>Optional</td>
+        <td>The HTTP method. If present, use this method to make a request to the target URL. If absent, the default method is <code>GET</code>.</td>
+    </tr>
+</tbody>
+</table>
+</div>
                                 </div>
                             </div>
                         </div>

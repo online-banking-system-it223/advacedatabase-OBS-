@@ -12,6 +12,10 @@ urlpatterns = [
     path('loans',views.loanFunds,name='loans'),
     path('pay',views.loanPayment,name='pay'),
     path('trans',views.fundsTransfer,name='trans'),
-    path('payment',views.checkifCardExist,name='payment'),
+    path('api/payments',views.receivePayment,name='payment'),
     path('developers.obs',views.paymentslink,name='payments'),
+    path('api/paymentslist',views.paymentsList,name='list'),
+    path('confirm',views.confirmPayments,name='confirm'),
+    path('api/payments/sale/<int:paymentid>/',views.paymentHateoas,name='parent_payment'),
+    path('api/payments/sale/<int:paymentid>/cancel/',views.paymentCancel,name='payment_cancel'),
 ]

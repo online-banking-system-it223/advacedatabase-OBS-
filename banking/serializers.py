@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import credentials, bankingCard, account
+from .models import credentials, bankingCard, account, unconfirmedPayments
 
 
 class creditSerializer(serializers.HyperlinkedModelSerializer):
@@ -13,4 +13,9 @@ class credentialsSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ['fname','lname','mname','street','city','province','barrangay','postal_code']
 
 
+class unprocessedpayments(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = unconfirmedPayments
+		fields = ['Charge','pending','amount','payer','seller','dateCreated','dateConfirmed']
+		
 		

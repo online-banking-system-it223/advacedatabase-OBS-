@@ -1,21 +1,16 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
-from django.urls import reverse
 from .userManagement import RegisterUser, LoggingUser, getUserDetails
 from .bankManagement import bankingMethod
 from django.contrib.auth import logout, login, authenticate
-from django.contrib import messages
 from django.utils.html import strip_tags
 import decimal
-from rest_framework import viewsets, status, permissions
-from .serializers import creditSerializer, credentialsSerializer
-from .models import bankingCard, account, credentials
+from .models import bankingCard, account, credentials, ApiPayments, apiTransaction, cancelledPayments
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_api_key.permissions import HasAPIKey
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.response import Response
 from rest_framework_api_key.models import APIKey
-from cryptography.fernet import Fernet
+from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 def index(request):
 
     if request.user.is_authenticated:
@@ -34,6 +29,7 @@ def index(request):
         loansPayable = userObject.getUserTotalAmountofLoans(num)
         loanedTotal = userObject.getUserTotalLoans(num)
         cardDetails = userObject.getUserCardDetails(num)
+        payments = ApiPayments.objects.filter(payer__id=num,pending=False,deleted=False)
 
 
         if not user:
@@ -47,7 +43,8 @@ def index(request):
         "notif":notif,
         "loansPayable":loansPayable,
         "totalLoaned":loanedTotal,
-        "Card":cardDetails}
+        "Card":cardDetails,
+        "payments":payments}
 
         return render(request, 'banking/index.html',context)
     else:
@@ -291,7 +288,7 @@ def fundsTransfer(request):
             if amount < 0:
                 return HttpResponse("Amount bust be Greater than 0!",status=403)
 
-            receiver = userObject.getUserCredentials(receiverAcc)
+            receiver = userObject.getUserAccountDetails2(receiverAcc)
 
             if not receiver:
                 return HttpResponse("Receiver Not Found. Please Check the account number",status=403)
@@ -342,79 +339,275 @@ def credentialsInsert(request):
     else:
         return redirect('index')
 
-def checkifCardExist(request):
-    cvc = request.META.get("HTTP_CVC", "")
-    cardnumber = request.META.get("HTTP_CARDNUMBER", "")
-    amount = decimal.Decimal(request.META.get("HTTP_AMOUNT", ""))
-    companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", "")
-    intent = request.META.get("HTTP_INTENT", None)
-    apiKey = request.META.get("HTTP_API_KEY", None)
-    checkApi = APIKey.objects.filter(prefix=apiKey)
+#API ZONE DO NOT ENTER
 
-    if not checkApi:
-        context = {"Msg":"API KEY ERROR","status":False,"errcode":401}
+@csrf_exempt
+def receivePayment(request):
+
+    if request.method == 'POST':
+        cvv = request.META.get("HTTP_CVV", False)
+        cardnumber = request.META.get("HTTP_CARDNUMBER", False)
+        amount = decimal.Decimal(request.META.get("HTTP_AMOUNT", False))
+        companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", False)
+        intent = request.META.get("HTTP_INTENT", False)
+        apiKey = request.META.get("HTTP_X_API_KEY", False)
+        charge = request.META.get("HTTP_INVOICEID", False)
+        expiration = request.META.get("HTTP_EXPIRATION", False)
+        checkApi = APIKey.objects.filter(prefix=apiKey)
+
+        if not checkApi:
+            context = {"Msg":"API KEY ERROR","status":False,"errcode":401}
+            return JsonResponse(context, safe=False,status=403)
+
+        if intent != "Sale":
+            context = {"Msg":"Intent Error, Please Set your intent into 'Sale' ","status":False,"errcode":402}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not cvv:
+            context = {"Msg":"Field Error. Card verification value error","status":False,"errcode":416}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not cardnumber:
+            context = {"Msg":"Field Error. Card number error","status":False,"errcode":416}
+            return JsonResponse(context, safe=False,status=403)
+
+        if amount < 0:
+            context = {"Msg":"Field Error. Amount is lessthan 0","status":False,"errcode":416}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not companyAccNumber:
+            context = {"Msg":"Field Error. Company account number error","status":False,"errcode":416}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not charge:
+            context = {"Msg":"Field Error. Invoice error, Please specify Invoice ID","status":False,"errcode":416}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not expiration:
+            context = {"Msg":"Field Error. Card Expiration error","status":False,"errcode":416}
+            return JsonResponse(context, safe=False,status=403)
+
+        bankObject = bankingMethod()
+
+        apiInstance = bankObject.recordPaymentRequest(amount,cardnumber,cvv,companyAccNumber,charge,expiration,apiKey)
+
+        if apiInstance == 1:
+            context = {"Msg":"This card is locked, it can't make payments atm. Please contact your\
+            bank for support!","status":False,"errcode":420}
+            return JsonResponse(context, safe=False,status=403)
+
+        if apiInstance == 2:
+            context = {"Msg":"Your company account Number is invalid","status":False,"errcode":422}
+            return JsonResponse(context, safe=False,status=403)
+
+        if apiInstance == 3:
+            context = {"Msg":"Your Api key doesn't match your company key.","status":False,"errcode":424}
+            return JsonResponse(context, safe=False,status=403)
+
+        if apiInstance == 4:
+            context = {"Msg":"Non-sufficient funds!","status":False,"errcode":412}
+            return JsonResponse(context, safe=False,status=403)
+
+        if apiInstance == 5:
+            context = {"Msg":"The card is disabled. Please use another card instead","status":False,"errcode":426}
+            return JsonResponse(context, safe=False,status=403)
+
+        if apiInstance == 6:
+            context = {"Msg":"The card is already expired","status":False,"errcode":428}
+            return JsonResponse(context, safe=False,status=403)
+
+        if apiInstance == 7:
+            context = {"Msg":"Card Details Invalid","status":False,"errcode":430}
+            return JsonResponse(context, safe=False,status=403)
+
+        if apiInstance == 8:
+            context = {"Msg":"Card not found","status":False,"errcode":432}
+            return JsonResponse(context, safe=False,status=403)
+
+        if apiInstance:
+            return JsonResponse(apiInstance, safe=False)
+    else:
+        context = {"Msg":"Request Method must be POST","status":False,"errcode":403}
         return JsonResponse(context, safe=False,status=403)
 
-    if intent != "Sale":
-        context = {"Msg":"Intent Error, Please Set your intent into 'Sale' ","status":False,"errcode":402}
-        return JsonResponse(context, safe=False,status=403)
-    bankObject = bankingMethod()
-    
-    paySomething  = bankObject.externalApiAccount(amount,cardnumber,cvc,companyAccNumber)
-    
-    if paySomething == 'Non-sufficient funds!':
-        context = {"Msg":paySomething,"status":False,"errcode":412}
+def confirmPayments(request):
+    if request.method == 'POST':
+        paymentId = request.POST.get("paymentid",None)
+        if paymentId is None:
+            return HttpResponse("Something Went Wrong. Please try again later",status=403)
+        bankObject = bankingMethod()
+        bankInstance = bankObject.confirmPendingPayment(paymentId)
+        print(bankInstance)
+        if bankInstance == 2:
+            return HttpResponse("This Payment is already Confirmed",status=403)
+
+        if bankInstance:
+            return HttpResponse("Payment Confirmed",status=200)
+    else:
+        return redirect('index')
+
+def paymentHateoas(request,paymentid):
+    if request.method == 'GET':
+        userObject = getUserDetails()
+        apiKey = request.META.get("HTTP_X_API_KEY", False)
+        companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", False)
+        checkApi = APIKey.objects.filter(prefix=apiKey)
+        comapanyAcc = userObject.getUserAccountDetails2(companyAccNumber)
+
+        if not checkApi:
+            context = {"Msg":"Api key Error","status":False,"errcode":403}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not comapanyAcc:
+            context = {"Msg":"Your company account Number is invalid","status":False,"errcode":422}
+            return JsonResponse(context, safe=False,status=403)
+
+        for x in comapanyAcc:
+            compId = x.id
+            companyKey = x.api_key
+
+        if apiKey != companyKey:
+            context = {"Msg":"Your Api key doesn't match your company key.","status":False,"errcode":424}
+            return JsonResponse(context, safe=False,status=403)
+
+        ApiInstance = apiTransaction.objects.values().filter(parentTransaction__id=paymentid)
+        
+        if not ApiInstance:
+            context = {"Msg":"The transaction does not exist or not yet confirmed.","status":False,"errcode":404}
+            return JsonResponse(context, safe=False,status=404)
+        else:
+            for x in ApiInstance:
+                context = {"transaction_id":paymentid,"transaction_details":[x['transaction']],"status":True}
+                return JsonResponse(context, safe=False,status=200)
+    else:
+        context = {"Msg":"Invalid Request Method","status":False,"errcode":403}
         return JsonResponse(context, safe=False,status=403)
 
-    if paySomething:
-        return JsonResponse(paySomething, safe=False)
+
+@csrf_exempt
+def paymentRefund(request):
+    if request.method == 'POST':
+        userObject = getUserDetails()
+        apiKey = request.META.get("HTTP_X_API_KEY", False)
+        companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", False)
+        checkApi = APIKey.objects.filter(prefix=apiKey)
+        comapanyAcc = userObject.getUserAccountDetails2(companyAccNumber)
+
+        if not checkApi:
+            context = {"Msg":"Api key Error","status":False,"errcode":403}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not comapanyAcc:
+            context = {"Msg":"Your company account Number is invalid","status":False,"errcode":422}
+            return JsonResponse(context, safe=False,status=403)
+
+        for x in comapanyAcc:
+            compId = x.id
+            companyKey = x.api_key
+
+        if apiKey != companyKey:
+            context = {"Msg":"Your Api key doesn't match your company key.","status":False,"errcode":424}
+            return JsonResponse(context, safe=False,status=403)
 
     else:
-        context = {"Msg":"Credit Card Credentials Error","status":False,"errcode":405}
+        context = {"Msg":"Invalid Request Method","status":False,"errcode":403}
         return JsonResponse(context, safe=False,status=403)
 
-    
+@csrf_exempt
+def paymentCancel(request,paymentid):
+    if request.method == 'POST':
+        userObject = getUserDetails()
+        bankObject = bankingMethod()
+        apiKey = request.META.get("HTTP_X_API_KEY", False)
+        companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", False)
+        checkApi = APIKey.objects.filter(prefix=apiKey)
+        comapanyAcc = userObject.getUserAccountDetails2(companyAccNumber)
+
+        if not checkApi:
+            context = {"Msg":"Api key Error","status":False,"errcode":403}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not comapanyAcc:
+            context = {"Msg":"Your company account Number is invalid","status":False,"errcode":422}
+            return JsonResponse(context, safe=False,status=403)
+
+        for x in comapanyAcc:
+            compId = x.id
+            companyKey = x.api_key
+
+        if apiKey != companyKey:
+            context = {"Msg":"Your Api key doesn't match your company key.","status":False,"errcode":424}
+            return JsonResponse(context, safe=False,status=403)
+
+        paymentInstanceTrue = ApiPayments.objects.filter(pending=True,pk=paymentid,deleted=False)
+
+        paymentInstanceFalse = ApiPayments.objects.filter(pending=False,pk=paymentid,deleted=False)
+
+        if paymentInstanceTrue:
+            context = {"Msg":"You can't cancel confirmed payments.","status":False,"errcode":403}
+            return JsonResponse(context, safe=False,status=403)
+
+        if not paymentInstanceFalse:
+            context = {"Msg":"The transaction does not exist","status":False,"errcode":404}
+            return JsonResponse(context, safe=False,status=404)
+
+        bankInstance = bankObject.cancelPayment(paymentid,paymentInstanceFalse)
+
+        return JsonResponse(bankInstance, safe=False,status=200)
+    else:
+        context = {"Msg":"Invalid Request Method","status":False,"errcode":403}
+        return JsonResponse(context, safe=False,status=403)
+
+def paymentsList(request):
+    try:
+        userObject = getUserDetails()
+        apiKey = request.META.get("HTTP_X_API_KEY", False)
+        companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", False)
+        queryLimit = request.GET.get('querysize',0)
+        offset = request.GET.get('offset',0)
+        endtime = request.GET.get('end_time',timezone.now())
+        comapanyAcc = userObject.getUserAccountDetails2(companyAccNumber)
+        
+        if not comapanyAcc:
+            context = {"Msg":"Your company account Number is invalid","status":False,"errcode":422}
+            return JsonResponse(context, safe=False,status=403)
+
+        for x in comapanyAcc:
+            compId = x.id
+            companyKey = x.api_key
+
+        if apiKey != companyKey:
+            context = {"Msg":"Your Api key doesn't match your company key.","status":False,"errcode":424}
+            return JsonResponse(context, safe=False,status=403)
+        try:
+            queryset = ApiPayments.objects.filter(seller__id=compId,dateCreated__lte=endtime,deleted=False)[int(offset):int(queryLimit)]
+        except AssertionError:
+            queryset = ApiPayments.objects.filter(seller__id=compId,deleted=False)[:10]
+
+        results = []
+        if queryset:
+            for x in queryset:
+                case = {"invoice_id":x.invoiceId,"confirmed":x.pending,"amount":float(x.amount),
+                    "payer":x.payer.id,"seller":x.seller.id,
+                    "dateCreated":str(x.dateCreated),"dateConfirmed":str(x.dateConfirmed),
+                    "links":[
+                    {'href':f'http://192.168.1.6:8888/api/payments/sale/{x.id}',
+                        'rel':'self','method':'GET'},
+                        
+                    {'href':f'http://192.168.1.6:8888/api/payments/sale/{x.id}/cancel',
+                        'rel':'refund','method':'POST'}]}
+                results.append(case)
+
+            return JsonResponse(results, safe=False,status=200)
+        else:
+            context = {"Msg":"No data to show","status":False,"errcode":200}
+            return JsonResponse(context, safe=False,status=200)
+
+    except ObjectDoesNotExist:
+        context = {"Msg":"Object Not found","status":False,"errcode":404}
+        return JsonResponse(context, safe=False,status=404)
+
+
 def paymentslink(request):
     return render(request,"banking/payments.html")
-class CreditCard(viewsets.ModelViewSet):
-    serializer_class = creditSerializer
-    permission_classes = [HasAPIKey | IsAuthenticated]
 
-    def get_queryset(self):
-        try:
-            # cvc = self.request.query_params.get('cvc')
-            # cardnumber = self.request.query_params.get('cardnumber')
-            cvc = self.request.META.get("HTTP_CVC", "")
-            cardnumber = self.request.META.get("HTTP_CARDNUMBER", "")
-            queryset = bankingCard.objects.filter(card_number=cardnumber,cvc=cvc)
-           
-            if queryset:
-                return queryset
-            else:
-                raise Http404
-        except ObjectDoesNotExist:
-            raise Http404
-            
-            
-class userCredentials(viewsets.ModelViewSet):
-    serializer_class = credentialsSerializer
-    permission_classes = [HasAPIKey | IsAuthenticated]
-
-    def get_queryset(self):
-        try:
-            cvc = self.request.META.get("HTTP_CVC", "")
-            cardnumber = self.request.META.get("HTTP_CARDNUMBER", "")
-            cards = bankingCard.objects.filter(card_number=cardnumber,cvc=cvc)
-
-            for x in cards:
-                accounts = account.objects.filter(pk=x.user_id.id)
-
-            for x in accounts:
-                queryset = credentials.objects.filter(user_id__id=x.user_id.id)
-            
-            if queryset:
-                return queryset
-            else:
-                raise Http404
-        except ObjectDoesNotExist:
-            raise Http404

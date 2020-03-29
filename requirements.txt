@@ -5,3 +5,5 @@ django-filter
 chardet
 djangorestframework-api-key
 cryptography
+psycopg2
+argon2

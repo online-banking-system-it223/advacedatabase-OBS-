@@ -25,7 +25,7 @@ SECRET_KEY = '7d^c&&ag94n8y2#@y$ckv-yhs^%ylhl^z@+$#(6a-zocr&zh#-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'banking.MyUser'
 
@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     'rest_framework',
     "rest_framework_api_key",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework_api_key.permissions.HasAPIKey",
+    ]
+}
 
 API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"
 
@@ -132,7 +138,7 @@ PASSWORD_HASHERS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'GMT'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 

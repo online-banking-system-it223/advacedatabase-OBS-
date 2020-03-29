@@ -42,17 +42,18 @@ class RegisterUser:
 					account_type="Checking",
 					account_balance=0.00000,
 					user_id=user,
-					api_key=key.prefix
+					api_key=key
 					)
-				accountObject.save()
 
 				cardObject = bankingCard(
 					card_number=creditNum,
-					cvc=creditCvc,
+					cvv=creditCvc,
 					expiration_date=expiration,
 					user_id=accountObject
 					)
+
 				cardObject.save()
+				accountObject.save()
 
 			return user
 
@@ -104,7 +105,6 @@ class LoggingUser:
 		
 class generateAccount:
 	"""docstring for generateAccount"""
-	
 	def accNumberGenerator(self):
 		accNumber = self.create_unique_id()
 		unique = False
@@ -153,86 +153,67 @@ class generateAccount:
 
 class getUserDetails:
 	"""docstring for getUserDetails"""
-	def getUserCredentials(self,account_number,accountId=None):
+	def getUserAccountDetails2(self,account_number):
 		try:
-			if accountId is not None:
-				account1 = account.objects.filter(pk=accountId)
-			else:
-				account1 = account.objects.filter(account_number=account_number)
+			account1 = account.objects.filter(account_number=account_number)
 			return account1
 		except ObjectDoesNotExist:
 			return False
 
 	def getUserBalance(self,account_number):
 		try:
-			balance = account.objects.filter(
-				account_number=account_number
-					).aggregate(balance=Sum('account_balance'))
-			
-			if balance['balance'] is None:
-				return 0 
-			balance = decimal.Decimal(balance['balance'])
-			return balance
-
+			balance = account.objects.values('account_balance').filter(account_number=account_number).first()
+			if balance is None:
+				return 0
+			return balance['account_balance']
 		except ObjectDoesNotExist:
 			return False
 		
 	def updateUserBalance(self,newBalance,account_number):
 		try:
 			account.objects.filter(account_number=account_number).update(account_balance=newBalance)
-			
 			return True
-
 		except ObjectDoesNotExist:
 			return False
 
-	def updateUserCurrentLoan(self,newbalance,accountId=None):
+	def updateUserCurrentLoan(self,newbalance,accountId):
 		try:
 			if newbalance == 0:
 				loans.objects.filter(account_id=accountId,isPaid=False).update(\
 					balance=newbalance,isPaid=True)
 			else:
 				loans.objects.filter(account_id=accountId,isPaid=False).update(balance=newbalance)
+		except ObjectDoesNotExist:
+			return False
+
+	def getUserLoanPaymentCount(self,accountId):
+		try:
+
+			paymentCount = loans.objects.values('numberOfPayments')\
+				.filter(account_id=accountId,isPaid=False).first()
+
+			return paymentCount['numberOfPayments']
+
+		except ObjectDoesNotExist:
+			return False
+		
+	def getUserLoanPrincipalAmount(self,accountId):
+		try:
+			principalAmount = loans.objects.values('parent_amount')\
+			.filter(account_id=accountId,isPaid=False).first()
+			return principalAmount['parent_amount']
 
 		except ObjectDoesNotExist:
 			return False
 
-	def getUserLoanPaymentCount(self,accountId=None):
-		try:
-		
-			paymentCount = loans.objects.filter(account_id=accountId,isPaid=False\
-				).aggregate(total=Sum('numberOfPayments'))
-
-			if paymentCount['total'] is None:
-				return 0
-
-			return paymentCount['total']
-
-		except ObjectDoesNotExist:
-			return 0
-		
-	def getUserLoanPrincipalAmount(self,accountId=None):
-		try:
-			principalAmount = loans.objects.filter(account_id=accountId,isPaid=False\
-				).aggregate(total=Sum('parent_amount'))
-
-			if principalAmount['total'] is None:
-				return 0
-
-			return principalAmount['total']
-
-		except ObjectDoesNotExist:
-			return 0
-
-	def getUserInformation(self,accountId=None):
+	def getUserInformation(self,accountId):
 		try:
 			credentials1 = credentials.objects.filter(user_id=accountId)
-
 			return credentials1
 		except ObjectDoesNotExist:
 			return False
 
-	def getUserAccountDetails(self,accountId=None):
+	def getUserAccountDetails(self,accountId):
 		try:
 			account1 = account.objects.filter(user_id=accountId)
 			return account1
@@ -248,7 +229,7 @@ class getUserDetails:
 			else:
 				return loans1['total']
 		except ObjectDoesNotExist:
-			return 0
+			return False
 
 	def getUserCardDetails(self,accountId):
 		try:
@@ -259,13 +240,12 @@ class getUserDetails:
 			
 	def getUserTotalAmountofLoans(self,accountId):
 		try:
-			loans1 = loans.objects.filter(account_id=accountId,isPaid=False).aggregate(total=Sum('balance'))
-			if loans1['total'] is None:
+			loans1 = loans.objects.values('balance').filter(account_id=accountId,isPaid=False).first()
+			if loans1 is None:
 				return 0
-			else:
-				return loans1['total']
+			return loans1['balance']
 		except ObjectDoesNotExist:
-			return 0
+			return False
 
 	def getUserTransactionList(self,accountId=None):
 		try:
@@ -277,7 +257,6 @@ class getUserDetails:
 	def getUserNotificationList(self,accountId=None):
 		try:
 			notif = notifications.objects.filter(receiver_id=accountId)
-
 			return notif
 		except ObjectDoesNotExist:
 			return False
