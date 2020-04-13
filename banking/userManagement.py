@@ -1,4 +1,4 @@
-from .models import MyUserManager, credentials, account, bankingCard, transaction, loans, MyUser, notifications
+from .models import MyUserManager, credentials, account, bankingCard, transaction, loans, MyUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.shortcuts import redirect
@@ -51,9 +51,9 @@ class RegisterUser:
 					expiration_date=expiration,
 					user_id=accountObject
 					)
-
-				cardObject.save()
 				accountObject.save()
+				cardObject.save()
+				
 
 			return user
 
@@ -160,6 +160,13 @@ class getUserDetails:
 		except ObjectDoesNotExist:
 			return False
 
+	def getMyUser(self,userID):
+		try:
+			user = MyUser.objects.filter(pk=userID)
+			return user
+		except ObjectDoesNotExist:
+			return False
+
 	def getUserBalance(self,account_number):
 		try:
 			balance = account.objects.values('account_balance').filter(account_number=account_number).first()
@@ -209,6 +216,7 @@ class getUserDetails:
 	def getUserInformation(self,accountId):
 		try:
 			credentials1 = credentials.objects.filter(user_id=accountId)
+
 			return credentials1
 		except ObjectDoesNotExist:
 			return False
@@ -249,14 +257,7 @@ class getUserDetails:
 
 	def getUserTransactionList(self,accountId=None):
 		try:
-			transactions = transaction.objects.filter(account_id=accountId)
+			transactions = transaction.objects.filter(transacOwner=accountId)
 			return transactions
-		except ObjectDoesNotExist:
-			return False
-
-	def getUserNotificationList(self,accountId=None):
-		try:
-			notif = notifications.objects.filter(receiver_id=accountId)
-			return notif
 		except ObjectDoesNotExist:
 			return False

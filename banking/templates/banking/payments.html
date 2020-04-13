@@ -1,390 +1,216 @@
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
+    <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="Content-Language" content="en">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>{% block title %}{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
-    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}REST PAYMENT{% endblock %}</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="{% static 'banking/assets/vendors/mdi/css/materialdesignicons.min.css'%}">
+    <link rel="stylesheet" href="{% static 'banking/assets/vendors/css/vendor.bundle.base.css'%}">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="{% static 'banking/assets/css/style.css'%}">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="{% static 'banking/assets/images/favicon.png'%}" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/table-to-json@1.0.0/lib/jquery.tabletojson.min.js" integrity="sha256-H8xrCe0tZFi/C2CgxkmiGksqVaxhW0PFcUKZJZo1yNU=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/TableDnD/0.9.1/jquery.tablednd.js" integrity="sha256-d3rtug+Hg1GZPB7Y/yTcRixO/wlI78+2m08tosoRn7A=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.7/ace.js" integrity="sha256-C7DTYRJLG+B/VEzHGeoPMw699nsTQYPAXHKXZb+q04E=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.css" integrity="sha256-IvM9nJf/b5l2RoebiFno92E5ONttVyaEEsdemDC6iQA=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
     <style>
-        @font-face {
-    font-family: 'Font Awesome 5 Free';
-    font-style: normal;
-    font-weight: 900;
-    src: url({% static 'banking/fonts/fa-solid-900.eot' %});
-    src: url({% static 'banking/fonts/fa-solid-900.eot?#iefix' %}) format("embedded-opentype"), url({% static 'banking/fonts/fa-solid-900.woff2' %}) format("woff2"), url({% static 'banking/fonts/fa-solid-900.woff' %}) format("woff"), url({% static 'banking/fonts/fa-solid-900.ttf' %}) format("truetype"), url({% static 'banking/fonts/fa-solid-900.svg#fontawesome' %}) format("svg")
+        #myBtn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  background-color: red;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 4px;
 }
 
-@font-face {
-    font-family: 'Pe-icon-7-stroke';
-    src: url({% static 'banking/fonts/Pe-icon-7-stroke.eot' %});
-    src: url({% static 'banking/fonts/Pe-icon-7-stroke.eot?#iefixd7yf1v' %}) format("embedded-opentype"), url({% static 'banking/fonts/Pe-icon-7-stroke.woff' %}) format("woff"), url({% static 'banking/fonts/Pe-icon-7-stroke.ttf' %}) format("truetype"), url({% static 'banking/fonts/Pe-icon-7-stroke.svg#Pe-icon-7-stroke' %}) format("svg");
-    font-weight: normal;
-    font-style: normal
-}
-
-@font-face {
-    font-family: 'Linearicons-Free';
-    src: url({% static 'banking/fonts/Linearicons-Free.eot'%});
-    src: url({% static 'banking/fonts/Linearicons-Free.eot?#iefixw118d'%}) format("embedded-opentype"), url({% static 'banking/fonts/Linearicons-Free.woff2'%}) format("woff2"), url({% static 'banking/fonts/Linearicons-Free.woff'%}) format("woff"), url({% static 'banking/fonts/Linearicons-Free.ttf'%}) format("truetype"), url({% static 'banking/fonts/Linearicons-Free.svg#Linearicons-Free'%}) format("svg");
-    font-weight: normal;
-    font-style: normal
-}
-
-
-.app-header__logo .logo-src {
-
-    background: url({% static 'banking/images/logo-inverse.png'%})
-}
-
-.app-header.header-text-light .app-header__logo .logo-src {
-    background: url({% static 'banking/images/logo.png'%})
-}
-
-.app-header.header-text-dark .app-header__logo .logo-src {
-    background: url({% static 'banking/images/logo-inverse.png'%})
-}
-
-
-.app-sidebar.sidebar-text-light .app-header__logo .logo-src {
-    background: url({% static 'banking/images/logo.png'%})
-}
-
-.app-logo {
-    background: url({% static 'banking/images/logo-inverse.png'%})
-}
-
-
-.app-logo-inverse {
-   background: url({% static 'banking/images/logo.png'%})
-}
-
-code[class*="language-"],
-pre[class*="language-"] {
-    color: #393A34;
-    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
-    direction: ltr;
-    text-align: left;
-    white-space: pre;
-    word-spacing: normal;
-    word-break: normal;
-    font-size: 0.95em;
-    line-height: 1.2em;
-    word-wrap: break-word;
-
-    -moz-tab-size: 4;
-    -o-tab-size: 4;
-    tab-size: 4;
-
-    -webkit-hyphens: none;
-    -moz-hyphens: none;
-    -ms-hyphens: none;
-    hyphens: none;
-}
-
-pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
-code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
-    background: #b3d4fc;
-}
-
-pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
-code[class*="language-"]::selection, code[class*="language-"] ::selection {
-    background: #b3d4fc;
-}
-
-/* Code blocks */
-pre[class*="language-"] {
-    padding: 1em;
-    margin: .5em 0;
-    overflow: auto;
-    border: 1px solid #dddddd;
-    background-color: white;
-}
-
-
-
-:not(pre) > code[class*="language-"],
-pre[class*="language-"] {
-}
-
-/* Inline code */
-:not(pre) > code[class*="language-"] {
-    padding: .2em;
-    padding-top: 1px; padding-bottom: 1px;
-    background: #f8f8f8;
-    border: 1px solid #dddddd;
-}
-
-.token.comment,
-.token.prolog,
-.token.doctype,
-.token.cdata {
-    color: #999988; font-style: italic;
-}
-
-.token.namespace {
-    opacity: .7;
-}
-
-.token.string,
-.token.attr-value {
-    color: #e3116c;
-}
-.token.punctuation,
-.token.operator {
-    color: #393A34; /* no highlight */
-}
-
-.token.entity,
-.token.url,
-.token.symbol,
-.token.number,
-.token.boolean,
-.token.variable,
-.token.constant,
-.token.property,
-.token.regex,
-.token.inserted {
-    color: #36acaa;
-}
-
-.token.atrule,
-.token.keyword,
-.token.attr-name,
-.language-autohotkey .token.selector {
-    color: #00a4db;
-}
-
-.token.function,
-.token.deleted,
-.language-autohotkey .token.tag {
-    color: #9a050f;
-}
-
-.token.tag,
-.token.selector,
-.language-autohotkey .token.keyword {
-    color: #00009f;
-}
-
-.token.important,
-.token.function,
-.token.bold {
-    font-weight: bold;
-}
-
-.token.italic {
-    font-style: italic;
-}
-
-@media (max-width: 480px) {
-
-  code{
-    font-size: 10px !important;
-  }
-}
-
-@media (max-width: 991.98px){
-
-.app-inner-layout .app-inner-layout__wrapper{
-position: relative !important;
-flex-direction: row !important;
-min-height: 100vh !important;
-display: inline !important;
-}
-}
-
-</style>
-    <link rel="stylesheet" href="{% static 'banking/main.css' %}" />
+  </style>
+</head>
 
 <body>
-    <div class="app-container app-theme-white body-tabs-shadow">
-        <div class="app-container">
-            <div class="app-main__inner p-0">
-                <div class="app-inner-layout chat-layout">
-                    <div class="app-inner-layout__header bg-happy-green header-text-light">
-                        <div class="app-page-title">
-                            <div class="page-title-wrapper">
-                                <div class="page-title-heading">
-                                    <div class="page-title-icon bg-happy-fisher"><i class="bg-mean-fruit fas fa-fw"></i></div>
-                                    <div><span style="color:white;">Bank of Dnsc</span>
-                                        <div class="page-title-subheading" style="color: white;">REST API</div>
-                                    </div>
-                                </div>
-                                <div class="page-title-actions">
-                                    <a href="{% url 'index' %}"><button class="ladda-button btn btn-pill btn-wide btn-alternate" data-style="expand-right"><span class="ladda-label">Get Api Key</span><span class="ladda-spinner"></span></button></a>
-                                </div>
+    <button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
+    <div class="container-scroller">
+        <div class="banner-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <nav class="navbar navbar-expand-lg">
+                            <a class="navbar-brand" href="../../index.html"><img src="../../../assets/images/logo.svg" alt=""></a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="mdi mdi-menu"></span>
+                            </button>
+                            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                                <ul class="navbar-nav">
+                                    <li class="nav-item active">
+                                        <a class="nav-link" href="#">How Card works</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Rest Payment</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">API Request</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">API Response</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+                <div class="row py-sm-5 py-0">
+                    <div class="col-lg-7 banner-content">
+                        <h1 class="mr-2 text-white">Payments REST API</h1>
+                        <h3 class="font-weight-light text-white pt-2 ">Bank of Dnsc Payments</h3>
+                        <p class="text-white">Use the Payments API to easily and securely accept online and mobile Dnsc Obs payments. You can enable customers to make Dnsc Obs payments with only a few clicks. A completed payment is known as a sale.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="details-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 text-center mb-5">
+                        <h1>Integration steps</h1>
+                    </div>
+                    <div class="col-sm-12 pb-3">
+                        <div class="card card-icon-top">
+                            <div class="card-body text-center">
+                                <table class="table table-hovered">
+                                    <thead style="visibility: hidden;">
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1.</td>
+                                            <td>Required</td>
+                                            <td><a href="#set-up-your-development-environment" pa-marked="1">Set up your development environment</a>.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2.</td>
+                                            <td>Required</td>
+                                            <td><a href="{% url 'register' %}">Create Bank of dnsc Account</a>.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>3.</td>
+                                            <td>Required</td>
+                                            <td><a pa-marked="1">Execute payment</a>.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                    <div class="app-inner-layout__wrapper row-fluid no-gutters">
-                        <div class="app-inner-layout__sidebar bg-transparent card" style="position: sticky !important;">
-                            <div class="p-3">
-                                <div class="dropdown-menu nav p-0 dropdown-menu-inline dropdown-menu-rounded dropdown-menu-hover-primary">
-                                    <h6 tabindex="-1" class="pt-0 dropdown-header">Integration Guides</h6>
-                                    <a href="#tab-faq-1" data-toggle="tab" tabindex="0" class="mb-1 dropdown-item show active" aria-expanded="true">How Card works</a>
-                                    <a href="#tab-faq-2" data-toggle="tab" tabindex="0" class="mb-1 dropdown-item show" aria-expanded="true">Rest Payment</a>
-                                    <a href="#tab-faq-3" data-toggle="tab" tabindex="0" class="mb-1 dropdown-item show" aria-expanded="true">API Request</a>
-
-                                    <a href="#tab-faq-4" data-toggle="tab" tabindex="0" class="mb-1 dropdown-item show" aria-expanded="true">API Response</a>
-                                </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-md-12 mx-auto py-5 text-center">
+                        <h1 id="set-up-your-development-environment">Set up your development environment</h1>
+                        <h4 class="font-weight-light">Before you can integrate Payments, you must set up your development environment. After you get a token that lets you access protected REST API resources.</h4>
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-md-12 mx-auto py-5 text-center">
+                        <h1 id="set-up-your-development-environment">Obtain Api Key</h1>
+                        <h4 class="font-weight-light">Bank of Dnsc authenticates your API requests using your account’s API keys. If you do not include your key when making an API request, or use one that is incorrect or outdated, Bank of Dnsc returns an error.</h4>
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-md-12 mx-auto py-5 text-center">
+                        <h1 id="set-up-your-development-environment">Obtaining your API keys</h1>
+                        <h4 class="font-weight-light">Your API keys are available in the Dashboard.</h4>
+                        <button class="btn btn-primary btn-lg mr-2 mb-3">GET API KEY</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center mb-5">
+                        <h1>Create payment intent</h1>
+                    </div>
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <p>After you collect the payment details from the customer, specify the payment details in a
+                                <code>/payment</code> call.</p>
+                            <table class="table table-hovered">
+                                <thead style="visibility: hidden;">
+                                    <tr>
+                                        <th>Param</th>
+                                        <th>Required</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>X-Api-Key</code></td>
+                                        <td>Required</td>
+                                        <td>Your Secret Api Key</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>cvv</code></td>
+                                        <td>Required</td>
+                                        <td>The customer CVV</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>cardnumber</code></td>
+                                        <td>Required</td>
+                                        <td>The customer Card number</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>intent</code></td>
+                                        <td>Required</td>
+                                        <td>For Payment the intent must be set to : Sale. <span class="text-danger"><strong>Note: It is case sensitive</strong></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>amount</code></td>
+                                        <td>Required</td>
+                                        <td>The amount of the sale.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>accountnumber</code></td>
+                                        <td>Required</td>
+                                        <td>Your company account number.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>invoiceid</code></td>
+                                        <td>Required</td>
+                                        <td>The transaction invoice ID</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>expiration</code></td>
+                                        <td>Required</td>
+                                        <td>The card expiration Date. You can use date time or Date. The server will only check the month and year of the expiration date. Date format must be YYYY-MM-DD</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="alert alert-danger mt-5">
+                                Important: You cannot run the following if you dont replace all call-specific parameter values, such as tokens and IDs, with your own values.
                             </div>
-                        </div>
-                        <div class="col-md-12 app-inner-layout__content card">
-                            <div class="pb-5 pl-5 pr-5 pt-3">
-                                <div class="mobile-app-menu-btn mb-3">
-                                    <button type="button" class="hamburger hamburger--elastic">
-                                        <span class="hamburger-box">
-                                            <span class="hamburger-inner"></span>
-                                        </span>
-                                    </button>
-                                </div>
-<div class="tab-content">
-    <div class="tab-pane show" id="tab-faq-2">
-
-<h4>Payments REST API</h4>
-
-<h1>Bank of Dnsc Payments</h1>
-
-<div class="divider"></div>
-
-<p>Use the Payments API to easily and securely accept online and mobile Dnsc Obs payments. You can enable customers to make Dnsc Obs payments with only a few clicks. A completed payment is known as a sale.</p>
-
-<div class="mt-5"></div>
-
-<h1>Integration steps</h1>
-
-<table class="table table-hovered">
-    <thead style="visibility: hidden;">
-        <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>1.</td>
-            <td>Required</td>
-            <td><a href="#set-up-your-development-environment" pa-marked="1">Set up your development environment</a>.</td>
-        </tr>
-        <tr>
-            <td>2.</td>
-            <td>Required</td>
-            <td><a href="{% url 'register' %}">Create Bank of dnsc Account</a>.</td>
-        </tr>
-        <tr>
-            <td>3.</td>
-            <td>Required</td>
-            <td><a pa-marked="1">Execute payment</a>.</td>
-        </tr>
-    </tbody>
-</table>
-
-<div class="mt-5"></div>
-
-<h2 id="set-up-your-development-environment">Set up your development environment</h2>
-
-<p>Before you can integrate Payments, you must set up your development environment. After you get a token that lets you access protected REST API resources.</p>
-
-<div class="mt-5"></div>
-
-<h2 id="set-up-your-development-environment">Obtain Api Key</h2>
-
-<p>Bank of Dnsc authenticates your API requests using your account’s API keys. If you do not include your key when making an API request, or use one that is incorrect or outdated, Bank of Dnsc returns an error.</p>
-
-<div class="mt-5"></div>
-
-<h2 id="set-up-your-development-environment">Obtaining your API keys</h2>
-
-<p>Your API keys are available in the Dashboard.</p>
-
-<img class="img-fluid" src="{% static 'banking/images/docs/apikeylocation.png'%}" alt="">
-
-<div class="mt-5"></div>
-
-<h2>Create Dnsc Obs payment</h2>
-
-<p>After you collect the payment details from the customer, specify the payment details in a 
-<code>/payment</code> call.</p>
-
-<table class="table table-hovered">
-    <thead style="visibility: hidden;">
-        <tr>
-            <th>Param</th>
-            <th>Required</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><code>X-Api-Key</code></td>
-            <td>Required</td>
-            <td>Your Secret Api Key</td>
-        </tr>
-        <tr>
-            <td><code>cvv</code></td>
-            <td>Required</td>
-            <td>The customer CVV</td>
-        </tr>
-        <tr>
-            <td><code>cardnumber</code></td>
-            <td>Required</td>
-            <td>The customer Card number</td>
-        </tr>
-
-        <tr>
-            <td><code>intent</code></td>
-            <td>Required</td>
-            <td>For Payment the intent must be set to : Sale. <span class="text-danger"><strong>Note: It is case sensitive</strong></span></td>
-        </tr>
-
-        <tr>
-            <td><code>amount</code></td>
-            <td>Required</td>
-            <td>The amount of the sale.</td>
-        </tr>
-
-        <tr>
-            <td><code>accountnumber</code></td>
-            <td>Required</td>
-            <td>Your company account number.</td>
-        </tr>
-        <tr>
-            <td><code>invoiceid</code></td>
-            <td>Required</td>
-            <td>The transaction invoice ID</td>
-        </tr>
-
-        <tr>
-            <td><code>expiration</code></td>
-            <td>Required</td>
-            <td>The card expiration Date. You can use date time or Date. The server will only check the month and year of the expiration date</td>
-        </tr>
-    
-    </tbody>
-</table>
-<div class="mt-5"></div>
-<div class="alert alert-danger">
-    Important: You cannot run the following if you dont replace all call-specific parameter values, such as tokens and IDs, with your own values.
-</div>
-<h5>PHP-Sample Code</h5>
-<div class="col-sm-12 col-md-12">
-<pre>
-<code class="language-php" style="font-size: 20px">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="aceExample" class="ace-editor">
 &lt?php
 error_reporting(0);
-
 $curl = curl_init();
 curl_setopt_array($curl, array(
-CURLOPT_URL => "http://192.168.1.6:8888/api/payments",
+CURLOPT_URL => "https://{{request.get_host}}/api/payments",
 CURLOPT_RETURNTRANSFER => true,
 CURLOPT_ENCODING => "",
 CURLOPT_MAXREDIRS => 10,
@@ -393,136 +219,136 @@ CURLOPT_FOLLOWLOCATION => true,
 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 CURLOPT_CUSTOMREQUEST => "POST",
 CURLOPT_HTTPHEADER => array(
-    "X-Api-Key: ",
-    "cvv: ",
-    "cardnumber: ",
-    "intent: ",
-    "amount: ",
-    "accountnumber: ",
-    "invoiceid: ",
-    "expiration: "
+"X-Api-Key: XHa21saPsnam",
+"cvv: 333",
+"cardnumber: 1111000022223333444",
+"intent: Sale",
+"amount: 2000.00",
+"accountnumber: 212117221722ADC",
+"invoiceid: 1",
+"expiration: YYYY-MM-DD"
 ),
 ));
-
 $response = curl_exec($curl);
-
 curl_close($curl);
-
 echo $response;
 ?&gt
-</code>
-
-</pre>
-</div>
-<h1>Code for cURL</h1>
-<div class="col-sm-12 col-md-12">
-<pre>
-<code class="language-http" style="font-size: 20px">
-curl --location --request POST 'http://192.168.1.6:8888/api/payments' \
---header 'X-Api-Key: ' \
---header 'cvv: ' \
---header 'cardnumber: ' \
---header 'intent: ' \
---header 'amount: ' \
---header 'accountnumber: ' \
---header 'invoiceid: ' \
---header 'expiration: '
-</code>
-
-</pre>
-</div>
-<div class="alert alert-danger">
-    Important: Use environment variables for the important informations. Like your Api key.
-</div>
-<div class="mt-5"></div>
-<p>Dnsc Obs returns a <em><strong>PaymentIntent</strong></em> object in response to your API request.</p>
-<pre class="language-javascript" data-jsonp="…">
-
-<code  style="font-size: 20px">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-5">
+                                <div class="col-md-12">
+                                    <div id="curl" class="ace-editor">
+curl --location --request POST 'https://{{request.get_host}}/api/payments' \
+--header 'X-Api-Key: XHa21saPsnam' \
+--header 'cvv: 333' \
+--header 'cardnumber: 1111000022223333' \
+--header 'intent: Sale' \
+--header 'amount: 2000.00' \
+--header 'accountnumber: 212117221722' \
+--header 'invoiceid: 1' \
+--header 'expiration: YYYY-MM-DD'
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                                var editor = ace.edit("aceExample");
+      editor.setTheme("ace/theme/chaos"); //set theme
+      editor.getSession().setMode("ace/mode/php"); //set mode
+      document.getElementById('aceExample').style.fontSize='1rem'; //styling
+    </script>
+                            <script>
+                                var editor = ace.edit("curl");
+      editor.setTheme("ace/theme/chaos"); //set theme
+      editor.getSession().setMode("ace/mode/php"); //set mode
+      document.getElementById('curl').style.fontSize='1rem'; //styling
+    </script>
+                            <div class="alert alert-danger mt-5">
+                                Important: Use environment variables for the sensitive informations. Like your Api key.
+                            </div>
+                            <p class="mt-5">The Api will return a <em><strong><code>PaymentIntent</code></strong></em> object in response to your API request.</p>
+                            <div class="row mt-5">
+                                <div class="col-md-12">
+                                    <div id="jsonresponse" class="ace-editor">
 {
-    "Msg": "Payment has been saved. Waiting confirmation from the user",
-    "status": true,
-    "requestId": 7,
-    "date": "2020-03-27 11:02:28.657559",
-    "amount": 0.0,
-    "invoice_id": "1",
-    "confirmed": false,
-    "links": [
-        {
-            "href": "http://192.168.1.6:8888/api/payments/sale/7",
-            "rel": "self",
-            "method": "GET"
-        },
-        {
-            "href": "http://192.168.1.6:8888/api/payments/sale/7/cancel",
-            "rel": "cancel",
-            "method": "POST"
-        }
-    ]
+"Msg": "Payment has been saved. Waiting confirmation from the user",
+"status": true,
+"requestId": 7,
+"date": "2020-03-27 11:02:28.657559",
+"amount": 0.0,
+"invoice_id": "1",
+"confirmed": false,
+"links": [
+{
+"href": "https://{{request.get_host}}/api/payments/sale/7",
+"rel": "self",
+"method": "GET"
+},
+{
+"href": "https://{{request.get_host}}/api/payments/sale/7/cancel",
+"rel": "cancel",
+"method": "POST"
 }
-</code>
-</pre>
-<p>Now that the payment intent is received by the server. The client will be notified and will need to confirm the payment first before it gets transfer to your bank account. You can also cancel the unconfirmed payments.</p>
-
-
-</div>
-
-
-
-<div class="tab-pane show active" id="tab-faq-1">
-<h4>How cards work</h4>
-<br>
-<h6>See how a credit or debit card payment works online, step by step.</h6>
-<br>
-<p>Cards are one of the most popular ways to pay online, with broad global reach. There are different types of cards and several steps in the process. To build a Dnsc Bank integration that supports all of your customers, see what goes on behind the scenes of a card payment.</p>
-<div class="main-card mb-3 card">
-    <div class="card-body">
-        <div class="vertical-time-simple vertical-without-time vertical-timeline vertical-timeline--animate vertical-timeline--one-column">
-            <div class="vertical-timeline-item vertical-timeline-element">
-                <div>
-                    <span class="vertical-timeline-element-icon bounce-in"></span>
-                    <div class="vertical-timeline-element-content bounce-in">
-                        <h4 class="timeline-title">Checking card details</h4>
-                        <p>Bank of Dnsc checks that the details provided are formatted correctly (e.g., the expiry date is not in the past). There is no guarantee that the card itself is valid yet.</p>
-                        <img class="img-fluid" src="{% static 'banking/images/docs/collect-card-details.svg'%}" alt="">
+]
+}
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                                var editor = ace.edit("jsonresponse");
+      editor.setTheme("ace/theme/chaos"); //set theme
+      editor.getSession().setMode("ace/mode/json"); //set mode
+      document.getElementById('jsonresponse').style.fontSize='1rem'; //styling
+    </script>
+                            <p class="mt-5">Now that the payment intent is received by the server. The client will be notified and will need to confirm the payment first before it gets transfer to your bank account. You can also cancel the unconfirmed payments.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="vertical-timeline-item vertical-timeline-element">
-                <div><span class="vertical-timeline-element-icon bounce-in"></span>
-                    <div class="vertical-timeline-element-content bounce-in">
-                        <h4>Customer authentication</h4>
-                        <p>Bank of Dnsc prompt the customer to authenticate a purchase (e.g., by texting the customer a code to enter on the bank's website).</p>
-                        <img class="img-fluid" src="{% static 'banking/images/docs/authenticate-card.svg'%}" alt="">
+                <div class="row">
+                    <div class="col-md-12 text-center mb-5">
+                        <h1>How cards work</h1>
+                        <h3>See how a credit or debit card payment works online, step by step.</h3>
+                        <p>Cards are one of the most popular ways to pay online, with broad global reach. There are different types of cards and several steps in the process. To build a Dnsc Bank integration that supports all of your customers, see what goes on behind the scenes of a card payment.</p>
+                    </div>
+                    <div class="col-sm-12 pb-3 text-center">
+                        <div class="card card-icon-top">
+                            <h4 class="card-title mt-5">Checking card details</h4>
+                            <p>Bank of Dnsc checks that the details provided are formatted correctly (e.g., the expiry date is not in the past). There is no guarantee that the card itself is valid yet.</p>
+                            <div class="card-body text-center">
+                                <img class="img-fluid" src="{% static 'banking/old/images/docs/collect-card-details.svg'%}" alt="">
+                            </div>
+                        </div>
+                        <div class="card card-icon-top mt-5">
+                            <h4 class="card-title mt-5">Authorization</h4>
+                            <p>Bank of Dnsc prompt the customer to authenticate a purchase (e.g., by texting the customer a code to enter on the bank's website).</p>
+                            <div class="card-body text-center">
+                                <img class="img-fluid" src="{% static 'banking/old/images/docs/authenticate-card.svg'%}" alt="">
+                            </div>
+                        </div>
+                        <div class="card card-icon-top mt-5">
+                            <h4 class="card-title mt-5">Customer authentication</h4>
+                            <p>The bank checks for sufficient funds and, if successful, holds the amount on the customer’s account to guarantee it for the merchant.</p>
+                            <div class="card-body text-center">
+                                <img class="img-fluid" src="{% static 'banking/old/images/docs/authorized-card.svg'%}" alt="">
+                            </div>
+                        </div>
+                        <div class="card card-icon-top mt-5">
+                            <h4 class="card-title mt-5">Capture</h4>
+                            <p>The money moves from the issuing bank to the merchant's account.</p>
+                            <div class="card-body text-center">
+                                <img class="img-fluid" src="{% static 'banking/old/images/docs/captured-card.svg'%}" alt="">
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="vertical-timeline-item vertical-timeline-element">
-                <div><span class="vertical-timeline-element-icon bounce-in"></span>
-                    <div class="vertical-timeline-element-content bounce-in">
-                        <h4 class="timeline-title">Authorization</h4>
-                        <p>The bank checks for sufficient funds and, if successful, holds the amount on the customer’s account to guarantee it for the merchant.</p>
-                        <img class="img-fluid" src="{% static 'banking/images/docs/authorized-card.svg'%}" alt="">
-                    </div>
-                </div>
-            </div>
-            <div class="vertical-timeline-item vertical-timeline-element">
-                <div><span class="vertical-timeline-element-icon bounce-in"></span>
-                    <div class="vertical-timeline-element-content bounce-in">
-                        <h4 class="timeline-title text-success">Capture</h4>
-                        <p>The money moves from the issuing bank to the merchant's account.</p>
-                        <img class="img-fluid" src="{% static 'banking/images/docs/captured-card.svg'%}" alt="">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-                                    <div class="tab-pane show" id="tab-faq-3">
-                                        <h3>API Requests</h3>
-                                        <br>
-                                        <p>
+
+
+
+                  <div class="row">
+                    <div class="col-sm-12 pb-3 text-center">
+                        <div class="card card-icon-top">
+                            <h4 class="card-title mt-5">API Requests</h4>
+                            <p>
                                             To make a REST API request, you combine the HTTP
                                             <code>GET</code>,
                                             <code>POST</code>,
@@ -535,7 +361,7 @@ curl --location --request POST 'http://192.168.1.6:8888/api/payments' \
                                         <br>
                                         <p>The URL to the API service is:</p>
                                         <ul>
-                                            <li><code>http://192.168.1.6:8888</code></li>
+                                            <li><code>https://{{request.get_host}}</code></li>
                                         </ul>
                                         <br>
                                         <p>Optionally, you can include <a href="">query parameters</a> on <code>GET</code> calls to filter, limit the size of, and sort the data in the responses.</p>
@@ -544,37 +370,52 @@ curl --location --request POST 'http://192.168.1.6:8888/api/payments' \
                                         <br>
                                         <h4>This sample request lists Payments:</h4>
                                         <br>
-                                        <pre>
-<code class="language-php" style="font-size: 20px">
+                            <div class="card-body text-center">
+                                <div class="row">
+                                <div class="col-md-12">
+                                    <div id="paymentList" class="ace-editor">
 &lt?php
-
 $curl = curl_init();
-
 curl_setopt_array($curl, array(
-  CURLOPT_URL => "http://192.168.1.6:8888/paymentslist?querysize=10",
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 0,
-  CURLOPT_FOLLOWLOCATION => true,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "GET",
-  CURLOPT_HTTPHEADER => array(
-    "X-Api-Key: ",
-    "accountnumber: ",
-  ),
+CURLOPT_URL => "http://192.168.1.6:8888/paymentslist?querysize=10",
+CURLOPT_RETURNTRANSFER => true,
+CURLOPT_ENCODING => "",
+CURLOPT_MAXREDIRS => 10,
+CURLOPT_TIMEOUT => 0,
+CURLOPT_FOLLOWLOCATION => true,
+CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+CURLOPT_CUSTOMREQUEST => "GET",
+CURLOPT_HTTPHEADER => array(
+"X-Api-Key: ",
+"accountnumber: ",
+),
 ));
-
 $response = curl_exec($curl);
-
 curl_close($curl);
 echo $response;
 ?&gt
-</code>
+                                    </div>
+                                </div>
+                            </div>
+                             <script>
+                                var editor = ace.edit("paymentList");
+      editor.setTheme("ace/theme/chaos"); //set theme
+      editor.getSession().setMode("ace/mode/php"); //set mode
+      document.getElementById('paymentList').style.fontSize='1rem'; //styling
+    </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-</pre>
-<h1>Integration steps</h1>
-<table class="table table-hovered">
+     <div class="row">
+                    <div class="col-md-12 text-center mb-5">
+                        <h1>Integration steps</h1>
+                    </div>
+                    <div class="col-sm-12 pb-3">
+                        <div class="card card-icon-top">
+                            <div class="card-body text-center">
+                                <table class="table table-hovered">
  <thead>
     <tr>
         <th>Parameter</th>
@@ -600,22 +441,24 @@ echo $response;
     </tr>
 </tbody>
 </table>
-</div>
-<div class="tab-pane show" id="tab-faq-4">
-    <h1>API Responses</h1>
-    <br>
-    <p>Bank of Dnsc API calls return HTTP status codes and its custom status codes. Some API calls also return JSON response bodies that include information about the resource including one or more contextual HATEOAS links. Use these links to request more information about and construct an API flow that is relative to a specific request. Each REST API request returns an HTTP status code</p>
-    <br>
-    <h1><strong>HTTP status codes</strong></h1>
-    <br>
-    <p>For successful requests, PayPal returns HTTP <code>2XX</code> status codes.</p>
-    <br>
-    <p>For failed requests, PayPal returns HTTP <code>4XX</code> or <code>5XX</code> status codes.</p>
-
-    <br>
-    <h4>Bank of Dnsc returns these HTTP status codes:</h4>
-     <div class="mt-5"></div>
-     <div class="table-responsive">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+ <div class="row">
+                    <div class="col-md-12 text-center mb-5">
+                        <h1>API Responses</h1>
+                        <p>Bank of Dnsc API calls return HTTP status codes and its custom status codes. Some API calls also return JSON response bodies that include information about the resource including one or more contextual HATEOAS links. Use these links to request more information about and construct an API flow that is relative to a specific request. Each REST API request returns an HTTP status code</p>
+                    </div>
+                    <div class="col-sm-12 pb-3">
+                        <div class="card card-icon-top">
+                            <div class="card-body ">
+                              <h1 class="text-center"><strong>HTTP status codes</strong></h1>
+                              <p  class="text-center">For successful requests, PayPal returns HTTP <code>2XX</code> status codes.</p>
+                              <p  class="text-center">For failed requests, PayPal returns HTTP <code>4XX</code> or <code>5XX</code> status codes.</p>
+                              <h4  class="text-center">Bank of Dnsc returns these HTTP status codes:</h4>
+                                  <div class="table-responsive mt-5">
     <table class="table table-hovered">
  <thead>
     <tr>
@@ -698,40 +541,53 @@ echo $response;
 </table>
 </div>
 <br>
-<h5>For all errors except Identity errors, PayPal returns an error response body that includes additional error details in this format.</h5>
-<br>
-<div class="alert alert-info">
+<h5 class="text-center">For all errors except Identity errors, PayPal returns an error response body that includes additional error details in this format.</h5>
+<div class="row">
+<div class="col-md-12">
+<div id="errorlist" class="ace-editor">
+{
+"name": "ERROR_NAME",
+"message": "ERROR_DESCRIPTION",
+"information_link": "ERROR_DOCUMENTATION_LINK",
+"details": [
+{
+"field": "field_name",
+"issue": "problem_with_field"
+}]
+}
+</div>
+</div>
+</div>
+<script>
+var editor = ace.edit("errorlist");
+editor.setTheme("ace/theme/chaos"); //set theme
+editor.getSession().setMode("ace/mode/json"); //set mode
+document.getElementById('errorlist').style.fontSize='1rem'; //styling
+</script>
+    <div class="alert alert-info mt-5">
     <strong>Note:</strong> Some types of errors also include a details array.
 </div>
-<br>
-                                       <pre>
-<code class="language-json" style="font-size: 20px">
-{
-  "name": "ERROR_NAME",
-  "message": "ERROR_DESCRIPTION",
-  "information_link": "ERROR_DOCUMENTATION_LINK",
-  "details": [
-  {
-    "field": "field_name",
-    "issue": "problem_with_field"
-  }]
-}
-</code>
-
-</pre>
 
 <br>
 <h5>The response body for Identity errors includes additional error details in this format:</h5>
-<br>
- <pre>
-<code class="language-json" style="font-size: 20px">
+
+
+<div class="row">
+<div class="col-md-12">
+<div id="errorlist1" class="ace-editor">
 {
   "error": "ERROR_NAME",
   "error_description": "ERROR_DESCRIPTION"
 }
-</code>
-
-</pre>
+</div>
+</div>
+</div>
+<script>
+var editor = ace.edit("errorlist1");
+editor.setTheme("ace/theme/chaos"); //set theme
+editor.getSession().setMode("ace/mode/json"); //set mode
+document.getElementById('errorlist1').style.fontSize='1rem'; //styling
+</script>
 <br>
 <h1>Validation errors</h1>
 <br>
@@ -739,7 +595,8 @@ echo $response;
 <br>
 <p>To prevent validation errors, ensure that parameters are the right type and conform to constraints:</p>
 <br>
-<table class="table table-hovered">
+<div class="table-responsive mt-5">
+    <table class="table table-hovered">
  <thead>
     <tr>
         <th>Parameter</th>
@@ -763,6 +620,8 @@ echo $response;
     </tr>
 </tbody>
 </table>
+</div>
+
 <br>
 <h1>Authorization errors</h1>
 
@@ -776,9 +635,10 @@ echo $response;
 <br>
 <p>This excerpt from a sample response shows an array of HATEOAS links:</p>
 <br>
- <pre>
-<code class="language-javascript" style="font-size: 20px">
-{  
+
+<div class="row">
+<div class="col-md-12">
+<div id="hateoas" class="ace-editor">
   {
     "Msg": "Payment has been saved. Waiting confirmation from the user",
     "status": true,
@@ -794,34 +654,34 @@ echo $response;
             "method": "GET"
         },
         {
-            "href": "http://192.168.1.6:8888/api/payments/sale/7/refund",
-            "rel": "refund",
-            "method": "POST"
-        },
-        {
             "href": "http://192.168.1.6:8888/api/payments/sale/7/cancel",
             "rel": "cancel",
             "method": "POST"
         }
     ]
 }
-}
-</code>
+</div>
+</div>
+</div>
+<script>
+var editor = ace.edit("hateoas");
+editor.setTheme("ace/theme/chaos"); //set theme
+editor.getSession().setMode("ace/mode/json"); //set mode
+document.getElementById('hateoas').style.fontSize='1rem'; //styling
+</script>
 
-</pre>
 <br>
 <p>Use the links in this example, as follows:</p>
 <br>
 <ul>
     <li>To get more information about the request, combine the <code>GET</code> method and the target <code>href</code> of the <code>self</code> link.</li>
-    <li>To request a refund, combine the <code>POST</code> method and the target <code>href</code> of the <code>refund</code> link.</li>
-    <li>To get information about the parent payment, combine the <code>GET</code> method and the target <code>href</code> of the <code>parent_payment</code> link.</li>
+    <li>To cancel a payment, combine the <code>POST</code> method and the target <code>href</code> of the <code>cancel</code> link.</li>
 </ul>
 <br>
 <p>The elements in each <code>link</code> object in the <code>links</code> array are:</p>
 
-<br>
-<table class="table table-hovered">
+<div class="table-responsive mt-5">
+    <table class="table table-hovered">
  <thead>
     <tr>
         <th>Element</th>
@@ -850,16 +710,116 @@ echo $response;
 </tbody>
 </table>
 </div>
-                                </div>
                             </div>
+                        </div>
+                    </div>
+                </div>            
+            </div>
+        </div>
+        <footer>
+            <div class="border-bottom">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <img class="img-fluid" src="../../../assets/images/logo.svg" alt="">
+                            <div class="d-flex pt-5 pb-5">
+                                <div class="social-icons bg-info text-white"><span class="mdi mdi-facebook"></span></div>
+                                <div class="social-icons bg-secondary text-white"><span class="mdi mdi-pinterest"></span></div>
+                                <div class="social-icons bg-danger text-white"><span class="mdi mdi-dribbble"></span></div>
+                                <div class="social-icons bg-info text-white"><span class="mdi mdi-twitter"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="d-flex">
+                                <i class="mdi mdi-cellphone-android"></i>
+                                <h6 class="font-weight-normal">(0000) 1234 5678</h6>
+                            </div>
+                            <div class="d-flex">
+                                <i class="mdi mdi-settings"></i>
+                                <h6 class="font-weight-normal">support@staradmin.org</h6>
+                            </div>
+                            <ul class="nav mt-3">
+                                <li class="nav-item">
+                                    <a class="nav-link pl-0" href="#">Demos</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Features</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Support</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Documentation</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-3">
+                            <h3 class="text-white">Newsletter</h3>
+                            <p>To get the latest news from us please subscribe your email.</p>
+                            <div class="mt-3">
+                                <input type="email" class="form-control mb-2" placeholder="Enter your email"> </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <h4 class="mt-3">Copyright © 2018 <a href="#">bootstrapdash</a>. All rights reserved.</h4>
+                    </div>
+                    <div class="col-sm-4">
+                        <h4>Hand-crafted &amp; made with <i class="mdi mdi-heart text-danger d-inline-block"></i>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="{% static 'banking/assets/vendors/js/vendor.bundle.base.js'%}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.6.0/bootstrap-maxlength.min.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="{% static 'banking/assets/vendors/chart.js/Chart.min.js'%}"></script>
+    <script src="{% static 'banking/assets/js/bootstrap-datepicker-min.js'%}"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="{% static 'banking/assets/js/off-canvas.js'%}"></script>
+    <script src="{% static 'banking/assets/js/hoverable-collapse.js'%}"></script>
+    <script src="{% static 'banking/assets/js/misc.js'%}"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <!-- <script src="{% static 'banking/assets/js/dashboard.js'%}"></script> -->
+    <script src="{% static 'banking/assets/js/todolist.js'%}"></script>
+    <script src="{% static 'banking/assets/js/validation.js'%}"></script>
+    <script src="//code.highcharts.com/highcharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <!-- End custom js for this page -->
+    {% block scripts %}
+    <script>
+    //Get the button
+    var mybutton = document.getElementById("myBtn");
+
+    // When the user scrolls down 20px from the top of the document, show the button
+    window.onscroll = function() { scrollFunction() };
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+
+    // When the user clicks on the button, scroll to the top of the document
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+    </script>
+    {% endblock %}
 </body>
-<script type="text/javascript" src="{% static 'banking/scripts/main.js' %}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/0.0.1/prism.min.js"></script>
 
 </html>

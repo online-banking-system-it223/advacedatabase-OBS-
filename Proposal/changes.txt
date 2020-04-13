@@ -1,0 +1,45 @@
+General Changes:
+All decimal fields length are changed from (12,3) to (30,5)
+
+Tuser:
+
+Tuser changed into TMyUser
+username column changed into email field
+changed password length to 128
+added last_login column
+added is_admin column with a datatype of boolean
+changed status column into is_active with a datatype of boolean
+
+
+Taccount:
+
+type changed into account_type
+balance changed into account_balance
+status changed into isLocked with a datatype of boolean
+added api_key with a data type of boolean
+
+Tcreditcard:
+
+Tcreditcard changed into TbankingCard
+status changed into isDisabled with a datatype of boolean
+added cardType with a datatype of varchar length (5)
+creditcard number datatype changed into varchar(19) from integer
+limit has been removed
+
+Tloans:
+date changed into loan_date
+interest changed from decimal to integer
+added isPaid with a datatype of boolean
+added NumberOfPayments  with a datatype of integer
+
+Added a New Table TapiRequests
+
+Added emails Table
+
+Removed Notification Table
+
+Removed Logs Table
+
+
+transaction
+

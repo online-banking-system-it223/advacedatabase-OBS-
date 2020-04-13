@@ -95,27 +95,27 @@ WSGI_APPLICATION = 'dnscOBS.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'banking_system',
-#         'USER': 'banking',
-#         'PASSWORD': 'cs2dlink',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dd2hg5iusddo5v',
-        'USER': 'rutcnvbxgzhtkt',
-        'PASSWORD': '1bc444e66716749b4c4463253b4215dc5ec85d1bd52d4eb34676527b40141b02',
-        'HOST': 'ec2-35-174-88-65.compute-1.amazonaws.com',
-        'PORT': '5432',
+        'NAME': 'banking_system',
+        'USER': 'banking',
+        'PASSWORD': 'cs2dlink',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'dd2hg5iusddo5v',
+#         'USER': 'rutcnvbxgzhtkt',
+#         'PASSWORD': '1bc444e66716749b4c4463253b4215dc5ec85d1bd52d4eb34676527b40141b02',
+#         'HOST': 'ec2-35-174-88-65.compute-1.amazonaws.com',
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation
@@ -160,16 +160,6 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
-PROJECT_ROOT   =   os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-STATIC_URL = '/static/'
-
-
-STATICFILES_DIRS = (
-    os.path.join(PROJECT_ROOT, 'static'),
-)
 
 
 # Static files (CSS, JavaScript, Images)
@@ -178,14 +168,11 @@ PROJECT_ROOT   =   os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT  =   os.path.join(PROJECT_ROOT, 'static')
 STATIC_URL = '/static/'
 
-# Extra lookup directories for collectstatic to find static files
-
-
 #  Add configuration for static files storage using whitenoise
 
 #  Add configuration for static files storage using whitenoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-import dj_database_url 
-prod_db  =  dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(prod_db)
+# import dj_database_url 
+# prod_db  =  dj_database_url.config(conn_max_age=500)
+# DATABASES['default'].update(prod_db)

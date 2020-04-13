@@ -1,4 +1,4 @@
-from .models import logs, transaction, loans, notifications, bankingCard, apiTransaction, ApiPayments, cancelledPayments
+from .models import transaction, loans, bankingCard, apiTransaction, ApiPayments, cancelledPayments, emails, credentials
 from django.core.exceptions import ObjectDoesNotExist
 import random, string, datetime, decimal
 from datetime import date
@@ -13,40 +13,49 @@ class bankingMethod:
 	def __init__(self):
 		#GET OTHER CLASS
 		self.userObjects = getUserDetails()
-		self.notifier = notifier()
-		self.logger = logsTrigger()
 		self.transac = transactionRecorder()
 
 		#METHOD FOR TRANSFERING FUND
-	def methodTransfer(self,account_number,accountId,amount):
+	def methodTransfer(self,account_number,accountId,amount,myUserInstance):
 		
 		sender = self.userObjects.getUserAccountDetails(accountId)
 		
 		receiver = self.userObjects.getUserAccountDetails2(account_number)
+
 		
-		senderBalance = self.userObjects.getUserBalance(accountId)
-		
-		receiverBalance = self.userObjects.getUserBalance(account_number)
 
 		for x in sender:
 			senderAccNumber = x.account_number
 			senderBalance = x.account_balance
 
-		for x in receiver:
-			receiverAccNumber = x.account_number
-			receiverBalance = x.account_balance
-
-		# senderBalance = self.userObjects.getUserBalance(senderAccNumber)
-
-		# receiverBalance = self.userObjects.getUserBalance(receiverAccNumber)
-
 		#CHECK IF THE RECEIVER IS FOUND
 		if not receiver:
 			return "Receiver not found!"
 
-		#CHECK IF SENDER HAS SUFFICIENT FUNDS FOR TRANSFER
 		if senderBalance < amount:
 			return "Non-sufficient funds!"
+
+		userCredentials = self.userObjects.getUserInformation(accountId)
+
+		for x in userCredentials:
+			fname = x.fname
+			lname = x.lname
+
+		for x in receiver:
+			receiverAccNumber = x.account_number
+			receiverBalance = x.account_balance
+			receiverMyuserID = x.user_id.id
+
+		receiverCredentials = credentials.objects.filter(user_id__id=receiverMyuserID)
+
+		for x in receiverCredentials:
+			refname = x.fname
+			relname = x.lname
+
+		receiverInstance = self.userObjects.getMyUser(receiverMyuserID)
+
+		#CHECK IF SENDER HAS SUFFICIENT FUNDS FOR TRANSFER
+
 
 		#FINAL CONDITION FOR TRANSFERING FUNDS
 		if senderBalance > amount or receiver:
@@ -59,19 +68,6 @@ class bankingMethod:
 			self.userObjects.updateUserBalance(senderNewBalance,senderAccNumber)
 			self.userObjects.updateUserBalance(receiverNewBalance,receiverAccNumber)
 
-			#SEND NOTIFICATION TO RECEIVER
-			notifObject = self.notifier.sendNotif(
-				'Received Funds',
-				f'You have Received {amount} From {senderAccNumber}. Your new balance is {floor(receiverNewBalance)}',
-				sender.first(),receiver.first()
-				)
-			#SEND NOTIFICATION TO SENDER
-			notifObject2 = self.notifier.sendNotif(
-				'Transfer Funds',
-				f'You have Transfered {amount} to {receiverAccNumber}. Your new balance is {floor(senderNewBalance)}',
-				sender.first(),sender.first()
-				)
-
 			#RECORD TRANSACTION
 			transacObject = self.transac.transac(
 				'TRANSFER FUNDS',receiver.first(),amount,senderNewBalance,sender.first()
@@ -79,89 +75,195 @@ class bankingMethod:
 			treansacObject2 = self.transac.transac(
 				"RECEIVED FUNDS",receiver.first(),amount,receiverNewBalance,receiver.first()
 				)
-			#RECORD  LOGS
-			self.logger.insertLogs(
-				'TRANSFER',sender.first(),notifObject2,transacObject
+
+			mailObject = self.transac.mail(
+				None,myUserInstance,"Withdraw",
+				'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
+				'10px;display: block;">'+
+
+				'<p style="font-family: Roboto;font-size: 14px;font-weight: 500;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;margin-bottom:'+ 
+                f'10px;">Hi {fname} {lname},</p>'+
+
+                '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;"> '+
+                f'You have transferd a total of ${round(amount,2)} to {receiverAccNumber}, your new account balance is ${round(senderNewBalance,2)}'+
+                '</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;">Hope you enjoy our service, we are here if you have any questions, '+
+                'drop us a line at info@bankofdnsc.com anytime.</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style:normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;margin-bottom: 0px;"> Thank you for using Bank of Dnsc.</p>'+
+
+                '<p style="font-family:'+
+                'Roboto;font-size: 14px;font-weight: 500;font-style: normal;font-stretch: normal;line-height: 2.5;'+
+                'letter-spacing: normal;color: #001737;margin-bottom: 0px;">Sincerly:  Bank of Dnsc team</p>'+
+
+                '</td>'
 				)
 
-			self.logger.insertLogs(
-				'RECEIVED',receiver.first(),notifObject,treansacObject2
+			mailObject = self.transac.mail(
+				None,receiverInstance,"Withdraw",
+				'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
+				'10px;display: block;">'+
+
+				'<p style="font-family: Roboto;font-size: 14px;font-weight: 500;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;margin-bottom:'+ 
+                f'10px;">Hi {refname} {relname},</p>'+
+
+                '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;"> '+
+                f'{fname} {lname} transferd a total of ${round(amount,2)} to your account, your new account balance is ${round(receiverNewBalance,2)}'+
+                '</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;">Hope you enjoy our service, we are here if you have any questions, '+
+                'drop us a line at info@bankofdnsc.com anytime.</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style:normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;margin-bottom: 0px;"> Thank you for using Bank of Dnsc.</p>'+
+
+                '<p style="font-family:'+
+                'Roboto;font-size: 14px;font-weight: 500;font-style: normal;font-stretch: normal;line-height: 2.5;'+
+                'letter-spacing: normal;color: #001737;margin-bottom: 0px;">Sincerly:  Bank of Dnsc team</p>'+
+
+                '</td>'
 				)
+
 		return True
 
 		#METHOD FOR WITHDRAWING FUNDS
-	def methodWithdraw(self,accountId,amount):
+	def methodWithdraw(self,accountId,amount,myUserInstance):
 		userInstance = self.userObjects.getUserAccountDetails(accountId)
+		userCredentials = self.userObjects.getUserInformation(accountId)
+
+		for x in userCredentials:
+			fname = x.fname
+			lname = x.lname
 
 		for x in userInstance:
 			accNumber = x.account_number
-
-		userBalance = self.userObjects.getUserBalance(accNumber)
+			userBalance = x.account_balance
 
 		if userBalance < amount:
 			return "Non-sufficient funds!"
 
-		else:
-			userNewBalance = userBalance - amount
-			updating = self.userObjects.updateUserBalance(userNewBalance,accNumber)
+		userNewBalance = userBalance - amount
+		updating = self.userObjects.updateUserBalance(userNewBalance,accNumber)
 
-			notifObject = self.notifier.sendNotif(
-				'Withdrew Funds',
-				f'You have Withdrew {amount} From your account. Your new balance is {userNewBalance}',
-				userInstance.first(),userInstance.first()
-				)
+		transacObject = self.transac.transac(
+			'WITHDREW FUNDS',userInstance.first(),amount,userNewBalance,userInstance.first()
+			)
 
-			transacObject = self.transac.transac(
-				'WITHDREW FUNDS',userInstance.first(),amount,userNewBalance,userInstance.first()
-				)
+		mailObject = self.transac.mail(
+				None,myUserInstance,"Withdraw",
+				'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
+				'10px;display: block;">'+
 
-			self.logger.insertLogs(
-				'WITHDREW',userInstance.first(),notifObject,transacObject
+				'<p style="font-family: Roboto;font-size: 14px;font-weight: 500;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;margin-bottom:'+ 
+                f'10px;">Hi {fname} {lname},</p>'+
+
+                '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;"> '+
+                f'You have withdrawn a total of ${round(amount,2)} from your account, your new account balance is ${round(userNewBalance,2)}'+
+                '</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;">Hope you enjoy our service, we are here if you have any questions, '+
+                'drop us a line at info@bankofdnsc.com anytime.</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style:normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;margin-bottom: 0px;"> Thank you for using Bank of Dnsc.</p>'+
+
+                '<p style="font-family:'+
+                'Roboto;font-size: 14px;font-weight: 500;font-style: normal;font-stretch: normal;line-height: 2.5;'+
+                'letter-spacing: normal;color: #001737;margin-bottom: 0px;">Sincerly:  Bank of Dnsc team</p>'+
+
+                '</td>'
 				)
 
 		return True
 
 		#METHOD FOR DEPOSITING FUNDS
-	def methodDeposit(self,accountId,amount):
+	def methodDeposit(self,accountId,amount,myUserInstance):
 		userInstance = self.userObjects.getUserAccountDetails(accountId)
+		userCredentials = self.userObjects.getUserInformation(accountId)
 
 		for x in userInstance:
 			accNumber = x.account_number
-		userBalance = self.userObjects.getUserBalance(accNumber)
+			userBalance = x.account_balance
+
+		for x in userCredentials:
+			fname = x.fname
+			lname = x.lname
 
 		userNewBalance = userBalance + amount
 		
 		self.userObjects.updateUserBalance(userNewBalance,accNumber)
 
-		notifObject = self.notifier.sendNotif(
-				'Deposited Funds',
-				f'You have Deposited {amount} To your account. Your new balance is {userNewBalance}',
-				userInstance.first(),userInstance.first()
-				)
-
+	
 		transacObject = self.transac.transac(
 				'DEPOSITED FUNDS',userInstance.first(),amount,userNewBalance,userInstance.first()
 				)
 
-		self.logger.insertLogs(
-				'DEPOSIT',userInstance.first(),notifObject,transacObject
+		mailObject = self.transac.mail(
+				None,myUserInstance,"Deposit",
+				'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
+				'10px;display: block;">'+
+
+				'<p style="font-family: Roboto;font-size: 14px;font-weight: 500;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;margin-bottom:'+ 
+                f'10px;">Hi {fname} {lname},</p>'+
+
+                '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;"> '+
+                f'You have deposited a total of ${round(amount,2)} to your account, your new account balance is ${round(userNewBalance,2)}'+
+                '</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;">Hope you enjoy our service, we are here if you have any questions, '+
+                'drop us a line at info@bankofdnsc.com anytime.</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style:normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;margin-bottom: 0px;"> Thank you for using Bank of Dnsc.</p>'+
+
+                '<p style="font-family:'+
+                'Roboto;font-size: 14px;font-weight: 500;font-style: normal;font-stretch: normal;line-height: 2.5;'+
+                'letter-spacing: normal;color: #001737;margin-bottom: 0px;">Sincerly:  Bank of Dnsc team</p>'+
+
+                '</td>'
 				)
 
 		return True
 
-	def methodLoan(self,accountId,amount,yearsToPay):
+	def methodLoan(self,accountId,amount,yearsToPay,myUserInstance):
 		userInstance = self.userObjects.getUserAccountDetails(accountId)
+		userCredentials = self.userObjects.getUserInformation(accountId)
 
 		for x in userInstance:
 			accNumber = x.account_number
 			accId = x.id
+			userBalance = x.account_balance
+
+		for x in userCredentials:
+			fname = x.fname
+			lname = x.lname
 
 		totalLoans = self.userObjects.getUserTotalAmountofLoans(accId)
 
 		if totalLoans > 0:
 			return "Please pay your current Loan first"
-
-		userBalance = self.userObjects.getUserBalance(accNumber)
 
 		userNewBalance = userBalance + amount
 
@@ -181,21 +283,10 @@ class bankingMethod:
 
 		numberOfPayment = yearsToPay * 12
 
-		notifObject = self.notifier.sendNotif(
-			'Loaned Money',
-			f'You have Loaned {amount} To your account. With an interest of 15%,\
-			 Total number of payments is {numberOfPayment}. Loan Due Date {duedate}\
-			 Please pay the loan before the due date. You can pay your loan in advance to save interest',
-			 userInstance.first(),
-			 userInstance.first(),
-			)
+		
 
 		transacObject = self.transac.transac(
 			'LOANED MONEY',userInstance.first(),amount,userNewBalance,userInstance.first()
-			)
-
-		self.logger.insertLogs(
-			'LOANED MONEY',userInstance.first(),notifObject,transacObject
 			)
 
 		loanObject = self.userLoanInsert(
@@ -204,16 +295,50 @@ class bankingMethod:
 
 		totalLoans = self.userObjects.getUserTotalAmountofLoans(accountId)
 
+		mailObject = self.transac.mail(
+				None,myUserInstance,"Loan",
+				'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
+				'10px;display: block;">'+
+
+				'<p style="font-family: Roboto;font-size: 14px;font-weight: 500;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;margin-bottom:'+ 
+                f'10px;">Hi {fname} {lname},</p>'+
+
+                '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;"> '+
+                f'You have loaned a total of ${round(amount,2)} to your account, your new account balance is ${round(userNewBalance,2)}'+
+                f'. Loan Interest is 9%, Payable up to {numberOfPayment} Months or {yearsToPay} Years.</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;">Hope you enjoy our service, we are here if you have any questions, '+
+                'drop us a line at info@bankofdnsc.com anytime.</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style:normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;margin-bottom: 0px;"> Thank you for using Bank of Dnsc.</p>'+
+
+                '<p style="font-family:'+
+                'Roboto;font-size: 14px;font-weight: 500;font-style: normal;font-stretch: normal;line-height: 2.5;'+
+                'letter-spacing: normal;color: #001737;margin-bottom: 0px;">Sincerly: Bank of Dnsc team</p>'+
+
+                '</td>'
+				)
+
 		return totalLoans
 
-	def methodPayLoan(self,amount,accountId):
+	def methodPayLoan(self,amount,accountId,myUserInstance):
 		userInstance = self.userObjects.getUserAccountDetails(accountId)
+		userCredentials = self.userObjects.getUserInformation(accountId)
 
 		for x in userInstance:
 			accNumber = x.account_number
 			accId = x.id
+			userBalance = x.account_balance
 
-
+		for x in userCredentials:
+			fname = x.fname
+			lname = x.lname
 
 		loansPayable = self.userObjects.getUserTotalAmountofLoans(accId)
 
@@ -222,12 +347,13 @@ class bankingMethod:
 		loanPrincipalAmount = self.userObjects.getUserLoanPrincipalAmount(accId)
 
 		interest = decimal.Decimal((0.15 / paymentCount)) * loanPrincipalAmount
+		interest1 = decimal.Decimal((0.15 / paymentCount)) * loansPayable
 
-		minimumpayment = (loansPayable / paymentCount) + (interest * paymentCount)
-
+		minimumpayment = (loansPayable / paymentCount) + (interest1 * paymentCount)
+		print(minimumpayment)
 		loansPayable = loansPayable + interest
 
-
+		userNewBalance = 0
 		if paymentCount == 0:
 			return "You do not have a loan to pay!"
 
@@ -237,27 +363,12 @@ class bankingMethod:
 		if amount > loansPayable:
 			change = amount - loansPayable
 
-			userBalance = self.userObjects.getUserBalance(accNumber)
-
 			userNewBalance = userBalance + change
 
 			self.userObjects.updateUserBalance(userNewBalance,accNumber)
 
-			notifObject = self.notifier.sendNotif(
-			'Change Payment',
-			f'You have received {floor(change)} To your account due to an excess payment of your loan,\
-			 You can withdraw this amount anytime you like\
-			 Your account balance is {floor(userNewBalance)}',
-			 userInstance.first(),
-			 userInstance.first(),
-			)
-
 			transacObject = self.transac.transac(
 			'Loan Change',userInstance.first(),change,userNewBalance,userInstance.first()
-			)
-
-			self.logger.insertLogs(
-				'Loan Change',userInstance.first(),notifObject,transacObject
 			)
 
 		else:
@@ -273,22 +384,42 @@ class bankingMethod:
 
 		loanObject = self.userObjects.updateUserCurrentLoan(loanNewBalance,accId)
 
-		notifObject = self.notifier.sendNotif(
-			'Loan Payment',
-			f'You have Paid {amount} To your exiting loan with an interstest of {floor(interest)},\
-			 Credited to principal amount is {floor(credited)}.\
-			 Please pay the loan before the due date. You can pay your loan in advance to save interest',
-			 userInstance.first(),
-			 userInstance.first(),
-			)
+	
 
 		transacObject = self.transac.transac(
 			'Loan Payment',userInstance.first(),amount,loanNewBalance,userInstance.first()
 			)
 
-		self.logger.insertLogs(
-			'Paid Loan',userInstance.first(),notifObject,transacObject
-			)
+		mailObject = self.transac.mail(
+				None,myUserInstance,"Loan Payment",
+				'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
+				'10px;display: block;">'+
+
+				'<p style="font-family: Roboto;font-size: 14px;font-weight: 500;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;margin-bottom:'+ 
+                f'10px;">Hi {fname} {lname},</p>'+
+
+                '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:'+
+                'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: #001737;"> '+
+                f'You have paid a total of ${round(amount,2)} to your loan, your new loan balance is ${round(loanNewBalance,2)}.'
+        		f' With a change of {round(change,2)} debited to your account,'+
+        		f' your new account balance is {round(userBalance + change,2)}'+
+                f'. Please rememeber that your loan Interest is 9%,'+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;">Hope you enjoy our service, we are here if you have any questions, '+
+                'drop us a line at info@bankofdnsc.com anytime.</p>'+
+
+                '<p style="font-family: Roboto;font-size: '+
+                '14px;font-weight: normal;font-style:normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+                'normal;color: #001737;margin-bottom: 0px;"> Thank you for using Bank of Dnsc.</p>'+
+
+                '<p style="font-family:'+
+                'Roboto;font-size: 14px;font-weight: 500;font-style: normal;font-stretch: normal;line-height: 2.5;'+
+                'letter-spacing: normal;color: #001737;margin-bottom: 0px;">Sincerly: Bank of Dnsc</p>'+
+
+                '</td>'
+				)
 
 		return True
 
@@ -321,20 +452,6 @@ class bankingMethod:
 
 		self.userObjects.updateUserBalance(companyBalancenewBalance,sellerAccNumber)
 
-
-		#SEND NOTIFICATION TO RECEIVER
-		notifObject = self.notifier.sendNotif('Received Payment',
-			f'You have Received {amount} From {payeraccNumber}.\
-			 Your new balance is {floor(companyBalancenewBalance)}',
-			payerInstance.first(),companyInstance.first()
-			)
-
-		#SEND NOTIFICATION TO SENDER
-		notifObject2 = self.notifier.sendNotif('Payment',
-			f'You have confirmed your payment amounting: {amount} to {sellerAccNumber}.',
-			payerInstance.first(),payerInstance.first()
-			)
-
 		#RECORD TRANSACTION
 		transacObject = self.transac.transac(
 			'Paid Something',companyInstance.first(),amount,payerBalance,payerInstance.first()
@@ -344,17 +461,6 @@ class bankingMethod:
 			"Received Payment",companyInstance.first(),amount,companyBalancenewBalance,companyInstance.first()
 			)
 
-		#RECORD  LOGS
-		self.logger.insertLogs(
-			'PAID',payerInstance.first(),notifObject2,transacObject
-			)
-
-		self.logger.insertLogs(
-			'RECEIVED',companyInstance.first(),notifObject,transacObject2
-			)
-
-
-	
 		context = {"id":transacObject2.id,"intent":"Sale","amount":float(amount),"amount_capturable":float(amount),\
 			"amount_received":float(amount),"capture_method":"automatic",\
 			"confirmation_method":"manual","created":str(datetime.now()),"currency":"PHP","fname":fname,\
@@ -432,20 +538,8 @@ class bankingMethod:
 
 		ApiPaymentsInstance.update(deleted=True)
 
-        #SEND NOTIFICATION TO RECEIVER
-		notifObject = self.notifier.sendNotif(
-			'Payment Cancelled',
-			f'A payment amounting {amountReceivable} has been cancelled by.\
-			 {fname} {lname}',
-			payerInstance.first(),companyInstance.first()
-			)
+      
 
-		#SEND NOTIFICATION TO SENDER
-		notifObject2 = self.notifier.sendNotif('Payment',
-			f'The payment to {sellerAccNumber} has been cancelled. The amount of {amountReceivable} \
-			was transfered back to your account',
-			payerInstance.first(),payerInstance.first()
-			)
 
 		#RECORD TRANSACTION
 		transacObject = self.transac.transac(
@@ -454,15 +548,6 @@ class bankingMethod:
 
 		transacObject2 = self.transac.transac(
 			"Cancelled Payment",companyInstance.first(),amountReceivable,sellerBalance,companyInstance.first()
-			)
-
-		#RECORD  LOGS
-		self.logger.insertLogs(
-			'Cancelled',payerInstance.first(),notifObject2,transacObject
-			)
-
-		self.logger.insertLogs(
-			'Cancelled',companyInstance.first(),notifObject,transacObject2
 			)
 
 
@@ -552,11 +637,6 @@ class bankingMethod:
 
 		self.userObjects.updateUserBalance(payerBalancenewBalance,payeraccNumber)
 
-		self.notifier.sendNotif('Account Deducted',
-			f'You have Deducted {amount}. \
-			Your new balance is {floor(payerBalancenewBalance)}',
-			payerInstance.first(),payerInstance.first()
-			)
 
 		context = {"Msg":"Payment has been saved. Waiting confirmation from the user",
 			"status":True,"requestId":paymentInstance.id,"date":str(datetime.now()),
@@ -584,45 +664,29 @@ class bankingMethod:
 		loanInstance.save()
 		return loanInstance
 
-class notifier:
-	"""docstring for notifier"""
-	def sendNotif(self,title,body,sender_id,receiver_id):
-		notifObject = notifications(
-			title=title,
-			body=body,
-			date = datetime.now(),
-			status = 'Unread',
-			sender_id=sender_id,
-			receiver_id=receiver_id
-			)
-		notifObject.save()
-		return notifObject
-		
-
-class logsTrigger:
-	"""docstring for logsTrigger"""
-	def insertLogs(self,event_name,account_id,notification_id,transaction_id):
-		logsObject = logs(
-			event_name=event_name,
-			date = datetime.now(),
-			account_id = account_id,
-			notification_id = notification_id,
-			transaction_id = transaction_id
-			)
-		logsObject.save()
-		return True
 
 class transactionRecorder:
 	"""docstring for transactionRecorder"""
-	def transac(self,transaction_type,receiver_account_id,amount,balance,account_id,creditcard_id=None):
+	def transac(self,transaction_type,receiver_account_id,amount,balance,account_id):
 		trasacObjects = transaction(
 			transaction_type = transaction_type,
-			receiver_account_id = receiver_account_id,
-			date = datetime.now(),
+			transacReceiver = receiver_account_id,
 			amount = amount,
-			balance = balance,
-			account_id = account_id,
-			creditcard_id = creditcard_id
+			newBalance = balance,
+			transacOwner = account_id,
 			)
+
 		trasacObjects.save()
 		return trasacObjects
+
+	def mail(self,sender,receiver,subject,body):
+		
+		instance = emails(
+			sender = sender,
+			receiver = receiver,
+			subject = subject,
+			body = body,
+			)
+		instance.save()
+
+		return True

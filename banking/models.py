@@ -162,23 +162,20 @@ class bankingCard(models.Model):
 class transaction(models.Model):
 	"""docstring for transaction"""
 	transaction_type = models.CharField(max_length=50)
-	receiver_account_id = models.ForeignKey(account,on_delete=models.CASCADE,null=True,related_name="transaction_receiver")
-	date = models.DateField(('DATE'))
+	transacReceiver = models.ForeignKey(account,on_delete=models.CASCADE,null=True,related_name="transaction_receiver")
+	date = models.DateField(('DATE'),auto_now_add=True)
 	amount = models.DecimalField(max_digits = 30, decimal_places = 5)
-	balance = models.DecimalField(max_digits = 30, decimal_places = 5)
-	account_id = models.ForeignKey(account,on_delete=models.CASCADE,related_name="transaction_sender")
-	creditcard_id = models.ForeignKey(bankingCard,on_delete=models.CASCADE,null=True,related_name="creditcard_used")
+	newBalance = models.DecimalField(max_digits = 30, decimal_places = 5)
+	transacOwner = models.ForeignKey(account,on_delete=models.CASCADE,related_name="transaction_sender")
 
-	def __unicode__(self):
-		return f"Transaction by:{account_id.account_number} . Transaction date: {self.date}.\
-		 Transaction Type: {self.transaction_type}"
+	class Meta:
+		ordering = ["-date"]
 
 	def __str__(self):
 		return self.transaction_type
 
 class loans(models.Model):
 	"""docstring for loans"""
-
 	parent_amount = models.DecimalField(max_digits = 30, decimal_places = 5)
 	interest = models.IntegerField()
 	loan_date = models.DateField(('DATE'))
@@ -189,35 +186,23 @@ class loans(models.Model):
 	account_id = models.ForeignKey(account,on_delete=models.CASCADE,related_name="loaner")
 	transaction_id = models.ForeignKey(transaction,on_delete=models.CASCADE,related_name="transaction_id")
 
-
 	def __unicode__(self):
 		return f"Loan by: {self.account_id.account_number}"
 
-class notifications(models.Model):
-	"""docstring for notifications"""
-	title = models.CharField(max_length=50)
+class emails(models.Model):
+	sender = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=True,related_name="email_owner")
+	receiver = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name="email_receiver")
+	date = models.DateTimeField(('DATE'),auto_now_add=True)
+	subject = models.CharField(max_length=50)
 	body = models.TextField()
-	date = models.DateField(('DATE'))
-	status = models.CharField(max_length=50)
-	sender_id = models.ForeignKey(account,on_delete=models.CASCADE,related_name="sender")
-	receiver_id = models.ForeignKey(account,on_delete=models.CASCADE,related_name="receiver")
+	opened = models.BooleanField(default=False)
 
-	def __unicode__(self):
-		return f"Message sent by: {self.sender_id.account_number} Title: {self.title}"
-
-class logs(models.Model):
-	"""docstring for logs"""
-	event_name = models.CharField(max_length=50)
-	date = models.DateField(('DATE'))
-	account_id = models.ForeignKey(account,on_delete=models.CASCADE,related_name="logs_users")
-	notification_id = models.ForeignKey(notifications,on_delete=models.CASCADE,related_name="notifation_id")
-	transaction_id = models.ForeignKey(transaction,on_delete=models.CASCADE,related_name="transaction")	
-
-	def __unicode__(self):
-		return self.date
+	class Meta:
+		ordering = ["-date"]
 
 	def __str__(self):
-		return self.event_name
+		return self.subject
+
 
 class ApiPayments(models.Model):
 	"""

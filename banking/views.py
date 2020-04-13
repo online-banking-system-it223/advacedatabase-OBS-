@@ -1,29 +1,116 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
-from .userManagement import RegisterUser, LoggingUser, getUserDetails
+from .userManagement import RegisterUser, LoggingUser, getUserDetails, generateAccount
 from .bankManagement import bankingMethod
 from django.contrib.auth import logout, login, authenticate
 from django.utils.html import strip_tags
 import decimal
-from .models import bankingCard, account, credentials, ApiPayments, apiTransaction, cancelledPayments
+from .models import bankingCard, account, credentials, ApiPayments, apiTransaction, cancelledPayments, emails, transaction
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_api_key.models import APIKey
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 import urllib.request
-
+from django.core.paginator import Paginator
+from datetime import datetime
 def connect(host='http://google.com'):
     try:
-        urllib.request.urlopen(host) #Python 3.x
+        urllib.request.urlopen(host)
         return True
     except:
-        return HttpResponse("No internet")
+        return False
 # test
-connect()
+
+
+def emailList(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
+    if request.user.is_authenticated:
+        if request.user.is_admin:
+            return redirect("/admin")
+        
+        userObject = getUserDetails()
+        user = userObject.getUserInformation(request.user.id)
+        account1 = userObject.getUserAccountDetails(request.user.id)
+        emails1 = emails.objects.filter(receiver=request.user.id)
+        newMails = emails.objects.filter(receiver=request.user.id)[:5]
+        paginator = Paginator(emails1, 25)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        if not user:
+            user = False
+        context = {"user":user,
+        "account":account1,
+        "emails":page_obj,
+        "newmails":newMails}
+
+        return render(request, 'banking/emaillist.html',context)
+    else:
+       return redirect('login')
+
+def transactionList(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
+
+    if request.user.is_authenticated:
+        if request.user.is_admin:
+            return redirect("/admin")
+        
+        userObject = getUserDetails()
+        user = userObject.getUserInformation(request.user.id)
+        account1 = userObject.getUserAccountDetails(request.user.id)
+        trans = transaction.objects.filter(transacOwner=request.user.id)
+        newMails = emails.objects.filter(receiver=request.user.id)[:5]
+        paginator = Paginator(trans, 25)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        if not user:
+            user = False
+        context = {"user":user,
+        "account":account1,
+        "transactions":page_obj,
+        "newmails":newMails}
+
+        return render(request, 'banking/transactions.html',context)
+    else:
+       return redirect('login')
+
+def specificEmail(request,emailId):
+    if not connect():
+        return HttpResponse("No internet",status=500)
+
+    if request.user.is_authenticated:
+        if request.user.is_admin:
+            return redirect("/admin")
+        
+        userObject = getUserDetails()
+        user = userObject.getUserInformation(request.user.id)
+        account1 = userObject.getUserAccountDetails(request.user.id)
+   
+        emails1 = emails.objects.filter(pk=emailId,receiver=request.user.id).first()
+        emails.objects.filter(pk=emailId,receiver=request.user.id,opened=False).update(opened=True)
+        newMails = emails.objects.filter(receiver=request.user.id)[:5]
+        if not user:
+            user = False
+
+        if not emails1:
+            emails1 = False
+        context = {"user":user,
+        "account":account1,
+        "emails":emails1,
+        "newmails":newMails}
+
+        return render(request, 'banking/email.html',context)
+    else:
+       return redirect('login')
+
+    
 
 def index(request):
-    
+    if not connect():
+        return HttpResponse("No internet",status=500)
+
     if request.user.is_authenticated:
         if request.user.is_admin:
             return redirect("/admin")
@@ -33,14 +120,31 @@ def index(request):
         account1 = userObject.getUserAccountDetails(request.user.id)
         for x in account1:
            accountId = x.id
+        newMails = emails.objects.filter(receiver=request.user.id)[:5]
         loans = userObject.getUserTotalLoans(request.user.id)
         totalLoans = userObject.getUserTotalAmountofLoans(request.user.id)
         transactions = userObject.getUserTransactionList(accountId)
-        notif = userObject.getUserNotificationList(accountId)
         loansPayable = userObject.getUserTotalAmountofLoans(accountId)
         loanedTotal = userObject.getUserTotalLoans(accountId)
         cardDetails = userObject.getUserCardDetails(accountId)
         payments = ApiPayments.objects.filter(payer__id=accountId,pending=False,deleted=False)
+
+        currdate = datetime.now()
+        currMonth = currdate.strftime("%m")
+        currYear = currdate.strftime("%Y")
+        for x in cardDetails:
+            cardDate = x.expiration_date
+            cardNumbah = x.card_number
+        
+        cardMonth = cardDate.strftime("%m")
+        cardYear = cardDate.strftime("%Y")
+
+        if cardMonth == currMonth and cardYear == currYear:
+            userObject1 = generateAccount()
+            newCard = userObject1.creditCardNumber()
+            newExpiration = userObject1.addYears()
+            newCvv = userObject1.create_unique_cvc()
+            bankingCard.objects.filter(card_number=cardNumbah).update(card_number=newCard,cvv=newCvv,expiration_date=newExpiration)
 
         if not user:
             user = False
@@ -50,11 +154,11 @@ def index(request):
         "loans":loans,
         "totalLoans":totalLoans,
         "transactions":transactions,
-        "notif":notif,
         "loansPayable":loansPayable,
         "totalLoaned":loanedTotal,
         "Card":cardDetails,
-        "payments":payments}
+        "payments":payments,
+        "newmails":newMails}
 
         return render(request, 'banking/index.html',context)
     else:
@@ -62,6 +166,8 @@ def index(request):
 
     
 def userRegistration(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
 
     if not request.user.is_authenticated:
 
@@ -74,12 +180,10 @@ def userRegistration(request):
             
             regis = regObject.register(email,code,pass1,pass2)
             if regis == "Password do not Match!":
-                messages.error(request, regis)
-                return HttpResponse(regis,status=400)
+                return render(request, "banking/register.html", {"messages": "Password do not Match!"})
 
             elif regis == 'User Already Exist!':
-                messages.error(request, regis)
-                return HttpResponse(regis,status=400)
+                return render(request, "banking/register.html", {"messages": "User Already Exist!"})
             else:
                 login(request, regis)
                 return redirect('index')
@@ -89,6 +193,9 @@ def userRegistration(request):
         return redirect('index')
 
 def userLogin(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
+
     if not request.user.is_authenticated:
 
         if request.method == "POST":
@@ -99,7 +206,6 @@ def userLogin(request):
             logging1 = logging.logmein(email,code,password)
             if not logging1:
                 return render(request, "banking/login.html", {"messages": "Incorrect Email or Secure Code!"})
-                return redirect('login')
             else:
                 user = authenticate(request, email=email, password=password)
                 if user is not None:
@@ -114,6 +220,9 @@ def userLogin(request):
          return redirect('index')
 
 def fundsDrawing(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
+
     #CHECK IF USER IS LOGGED IN
     if request.user.is_authenticated:
         #CHECK IF METHOD IS POST
@@ -131,7 +240,7 @@ def fundsDrawing(request):
             if amount < 0:
                 return HttpResponse("Amount bust be Greater than 0!",status=403)
 
-            bankInstance = bankObject.methodWithdraw(request.user.id, amount)
+            bankInstance = bankObject.methodWithdraw(request.user.id, amount,request.user)
             account1 = userObject.getUserAccountDetails(request.user.id)
 
             if bankInstance == 'Non-sufficient funds!':
@@ -148,6 +257,8 @@ def fundsDrawing(request):
         return redirect('index')
 
 def fundsDeposit(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
 
      #CHECK IF USER IS LOGGED IN
     if request.user.is_authenticated:
@@ -166,7 +277,7 @@ def fundsDeposit(request):
             if amount < 0:
                 return HttpResponse("Amount bust be Greater than 0!",status=403)
             
-            bankInstance = bankObject.methodDeposit(request.user.id,amount)
+            bankInstance = bankObject.methodDeposit(request.user.id,amount,request.user)
             account1 = userObject.getUserAccountDetails(request.user.id)
             
             for x in account1:
@@ -178,6 +289,8 @@ def fundsDeposit(request):
         return redirect('index')
 
 def loanFunds(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
 
     if request.user.is_authenticated:
 
@@ -200,7 +313,7 @@ def loanFunds(request):
 
             account1 = userObject.getUserAccountDetails(request.user.id)
 
-            bankInstane = bankObject.methodLoan(request.user.id,amount,yearsToPay)
+            bankInstane = bankObject.methodLoan(request.user.id,amount,yearsToPay,request.user)
             if bankInstane == "Please pay your current Loan first":
                 return HttpResponse("Please pay your current Loan first",status=403)
 
@@ -224,6 +337,9 @@ def loanFunds(request):
 
 
 def loanPayment(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
+
     if request.user.is_authenticated:
 
         if request.method == "POST":
@@ -249,7 +365,7 @@ def loanPayment(request):
             if loanPayable == 0:
                 return HttpResponse("You do not have a loan to pay!",status=403)
 
-            loanObject = bankObject.methodPayLoan(amount,request.user.id)
+            loanObject = bankObject.methodPayLoan(amount,request.user.id,request.user)
 
             if loanObject == "You do not have a loan to pay!":
                 return HttpResponse("You do not have a loan to pay!",status=403)
@@ -277,6 +393,8 @@ def loanPayment(request):
 
 #811444613230
 def fundsTransfer(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
      #CHECK IF USER IS LOGGED IN
     if request.user.is_authenticated:
         #CHECK IF METHOD IS POST
@@ -302,7 +420,7 @@ def fundsTransfer(request):
                 return HttpResponse("Receiver Not Found. Please Check the account number",status=403)
 
 
-            bankInstance = bankObject.methodTransfer(receiverAcc,request.user.id,amount)
+            bankInstance = bankObject.methodTransfer(receiverAcc,request.user.id,amount,request.user)
 
             if bankInstance == "Receiver not found!":
                 return HttpResponse("Receiver Not Found. Please Check the account number",status=403)
@@ -329,6 +447,9 @@ def logout_view(request):
     return redirect('index')
 
 def credentialsInsert(request):
+    if not connect():
+        return HttpResponse("No internet",status=500)
+        
     if request.method == "POST":
         regObject = RegisterUser()
 
