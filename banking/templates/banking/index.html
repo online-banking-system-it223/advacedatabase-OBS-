@@ -81,7 +81,7 @@ We keep you and your money safe. Maybe...
                                 <td>{{x.seller.account_number}}</td>
                                 <td>
                                     <button class="btn btn-success" onclick="confirmpayment({{x.id}})">Confirm</button>
-                                    <button class="btn btn-danger">Cancel</button>
+                                    <button class="btn btn-danger" onclick="cancelpayment({{x.id}})">Cancel</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -146,7 +146,7 @@ We keep you and your money safe. Maybe...
             </div>
         </div>
     </div>
-
+<!-- 
         <div class="col-md-6 stretch-card grid-margin">
         <div class="card">
             <div class="card-body">
@@ -208,7 +208,7 @@ var myChart = new Chart(ctx, {
 </script>
             </div>
         </div>
-    </div>
+    </div> -->
 
   
 </div>

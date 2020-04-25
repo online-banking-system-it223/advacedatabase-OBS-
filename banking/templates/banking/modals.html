@@ -70,7 +70,6 @@ $(document).ready(function() {
     });
 
 
-
     $("#transfer").click(function() {
 
         Swal.fire({
@@ -135,16 +134,6 @@ $(document).ready(function() {
         })
 
     });
-
-
-
-
-
-
-
-
-
-
 
 
     $("#withdraw").click(function() {
@@ -375,6 +364,23 @@ function showkey() {
     }
 }
 
+function cancelpayment(payment){
+    $.ajax({
+        url: "{% url 'cancelpayment' %}",
+        type: 'POST',
+        data: {paymentid: payment},
+    })
+    .done(function() {
+     Swal.fire('Payment Canceled!','','success')
+     $("#trid"+payment).hide();
+    })
+    .fail(function() {
+         Swal.fire({icon: 'error',title: 'Oops...',text: `Something Went Wrong`,
+                                footer: '<a href>Why do I have this issue?</a>'
+                            })
+    })
+}
+
 function showkey1() {
     var x = document.getElementById("cvv");
     if (x.type === "password") {
@@ -383,6 +389,8 @@ function showkey1() {
         x.type = "password";
     }
 }
+
+
 
 function confirmpayment(id) {
     Swal.fire({

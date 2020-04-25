@@ -501,8 +501,6 @@ class bankingMethod:
 
 	def cancelPayment(self,paymentID,paymentInstance):
 
-		
-
 		for x in paymentInstance:
 			paymentID = x.id
 			userid = x.payer.id
@@ -537,9 +535,6 @@ class bankingMethod:
 
 
 		ApiPaymentsInstance.update(deleted=True)
-
-      
-
 
 		#RECORD TRANSACTION
 		transacObject = self.transac.transac(

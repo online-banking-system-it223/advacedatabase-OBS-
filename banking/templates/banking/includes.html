@@ -147,6 +147,7 @@
                             <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
                         </a>
                     </li>
+                    {% if request.get_full_path == '/' %}
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="transfer">
                             <span class="menu-title">Transfer</span>
@@ -177,6 +178,7 @@
                             <i class="mdi mdi-home menu-icon"></i>
                         </a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'view_all_mail'%}">
                             <span class="menu-title">Emails</span>

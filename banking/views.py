@@ -463,7 +463,6 @@ def credentialsInsert(request):
         zipcode = strip_tags(request.POST.get("zip",None))
         userid = request.user.id
         reg = regObject.insertCredentials(fname,lname,mname,Street,City,Province,Barangay,zipcode,userid)
-        print(reg)
         return redirect('index')
     else:
         return redirect('index')
@@ -577,6 +576,22 @@ def confirmPayments(request):
     else:
         return redirect('index')
 
+def cancelpayment(request):
+    if request.method == 'POST':
+
+        bankObject = bankingMethod()
+        paymentId = strip_tags(request.POST.get("paymentid",None))
+        paymentInstanceTrue = ApiPayments.objects.filter(pending=False,pk=paymentid,deleted=False)
+        if paymentInstanceTrue:
+            
+            bankInstance = bankObject.cancelPayment(paymentid,paymentInstanceTrue)
+            return HttpResponse("Deleted",status=200)
+        else:
+            return HttpResponse("Error, Something went wrong. Please Reload the page to continue",status=500)
+    else:
+        return redirect('index')
+
+        
 def paymentHateoas(request,paymentid):
     if request.method == 'GET':
         userObject = getUserDetails()
@@ -680,7 +695,7 @@ def paymentCancel(request,paymentid):
 
         paymentInstanceTrue = ApiPayments.objects.filter(pending=True,pk=paymentid,deleted=False)
 
-        paymentInstanceFalse = ApiPayments.objects.filter(pending=False,pk=paymentid,deleted=False)
+        paymentInstanceFalse = ApiPayments.objects.filter(pending=False,pk=paymentid,deleted=True)
 
         if paymentInstanceTrue:
             context = {"error":"INVALID_REQUEST","error_description":"You are trying to cancel a confirmed payment"}
