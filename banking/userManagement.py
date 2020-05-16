@@ -52,11 +52,8 @@ class RegisterUser:
 					expiration_date=expiration,
 					user_id=accountObject
 					)
-<<<<<<< HEAD
 
-=======
 				accountObject.save()
->>>>>>> improvements
 				cardObject.save()
 				
 
