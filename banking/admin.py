@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from banking.models import MyUser, account, bankingCard, transaction, notifications, logs, loans , apiTransaction
+from banking.models import MyUser, account, bankingCard, transaction, loans , apiTransaction
 
 
 class UserCreationForm(forms.ModelForm):
@@ -83,8 +83,6 @@ admin.site.register(MyUser, UserAdmin)
 admin.site.register(account)
 admin.site.register(bankingCard)
 admin.site.register(transaction)
-admin.site.register(notifications)
-admin.site.register(logs)
 admin.site.register(loans)
 admin.site.register(apiTransaction)
 # ... and, since we're not using Django's built-in permissions,

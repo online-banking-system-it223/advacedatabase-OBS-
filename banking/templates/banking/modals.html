@@ -70,7 +70,6 @@ $(document).ready(function() {
     });
 
 
-
     $("#transfer").click(function() {
 
         Swal.fire({
@@ -135,16 +134,6 @@ $(document).ready(function() {
         })
 
     });
-
-
-
-
-
-
-
-
-
-
 
 
     $("#withdraw").click(function() {
@@ -334,23 +323,8 @@ $("#deposit").click(function() {
 
 });
 
-
-(function() {
-    'use strict';
-    window.addEventListener('load', function() {
-
-        var forms = document.getElementsByClassName('needs-validation');
-        // Loop over them and prevent submission
-        var validation = Array.prototype.filter.call(forms, function(form) {
-            form.addEventListener('submit', function(event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                } else {
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    $.ajax({
+$('#signupForm').submit(function(event) {
+           $.ajax({
                             url: "{% url 'credentialsInsert' %}",
                             type: 'POST',
                             data: {
@@ -359,14 +333,14 @@ $("#deposit").click(function() {
                                 mname: $("#mname").val(),
                                 Province: $("#Province").val(),
                                 City: $("#City").val(),
+                                Barangay: $("#Barangay").val(),
                                 Street: $("#Street").val(),
-                                zip: $("#zip").val()
+                                zip: $("#Zip").val()
                             },
                         })
                         .done(function(data) {
-                            $("#bodyhere").show();
-                            $("#credentialsHere").hide();
-                            window.location.href = "";
+                           
+                            window.location.href = "/";
                         })
                         .fail(function(data) {
 
@@ -379,12 +353,7 @@ $("#deposit").click(function() {
 
 
                         })
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    }, false);
-})();
+});
 
 function showkey() {
     var x = document.getElementById("key");
@@ -394,6 +363,34 @@ function showkey() {
         x.type = "password";
     }
 }
+
+function cancelpayment(payment){
+    $.ajax({
+        url: "{% url 'cancelpayment' %}",
+        type: 'POST',
+        data: {paymentid: payment},
+    })
+    .done(function() {
+     Swal.fire('Payment Canceled!','','success')
+     $("#trid"+payment).hide();
+    })
+    .fail(function() {
+         Swal.fire({icon: 'error',title: 'Oops...',text: `Something Went Wrong`,
+                                footer: '<a href>Why do I have this issue?</a>'
+                            })
+    })
+}
+
+function showkey1() {
+    var x = document.getElementById("cvv");
+    if (x.type === "password") {
+        x.type = "text";
+    } else {
+        x.type = "password";
+    }
+}
+
+
 
 function confirmpayment(id) {
     Swal.fire({
@@ -437,4 +434,25 @@ function confirmpayment(id) {
         }
     })
 }
+
+$("#copyKey").click(function(event) {
+     var x = document.getElementById("key");
+    if (x.type === "password") {
+        x.type = "text";
+    } else {
+        x.type = "password";
+    }
+  var copyText = document.getElementById("key");
+  copyText.select();
+  copyText.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+     var x = document.getElementById("key");
+    if (x.type === "password") {
+        x.type = "text";
+    } else {
+        x.type = "password";
+    }
+});
+
+
 </script>

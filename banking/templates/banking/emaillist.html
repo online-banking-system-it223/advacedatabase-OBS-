@@ -1,0 +1,113 @@
+{% extends "banking/includes.html" %}
+{% load static %}
+{% block title %}
+HOME
+{% endblock %}
+{% block pagetitle %}
+BANK OF DAVAO DEL NORTE STATE COLLEGE
+{% endblock %}
+{% block pagetitlesubheading %}
+We keep you and your money safe. Maybe...
+{% endblock %}
+{% block reportsbtn %}
+{% endblock %}
+{% block scripts%}
+<script>
+  function state(id){
+    $("#badge"+id).html("Opened");
+    $("#badge"+id).removeClass('badge-gradient-danger');
+    $("#badge"+id).addClass('badge-gradient-success');
+}
+</script>
+{% endblock %}
+{% block body %}
+
+ <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-sm-flex pb-4 mb-4 border-bottom">
+                      <div class="d-flex align-items-center">
+                        <h5 class="page-title mb-n2">Emails</h5>
+                        <p class="mt-2 mb-n1 ml-3 text-muted"></p>
+                      </div>
+                      <form class="ml-auto d-flex pt-2 pt-md-0 align-items-stretch w-50 justify-content-end">
+                        <input type="text" class="form-control w-50" placeholder="Search">
+                        <button type="submit" class="btn btn-gradient-success no-wrap ml-4">Search Email</button>
+                      </form>
+                    </div>
+                    <div class="nav-scroller">
+                      <ul class="nav nav-tabs tickets-tab-switch" role="tablist">
+                        <li class="nav-item">
+                          <a class="nav-link rounded active" id="open-tab" data-toggle="tab" href="#open-tickets" role="tab" aria-controls="open-tickets" aria-selected="true">Emails<div class="badge">13</div></a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="tab-content border-0 tab-content-basic">
+                      <div class="tab-pane fade show active" id="open-tickets" role="tabpanel" aria-labelledby="open-tickets">
+                        
+                      
+                     
+                    
+                        <div class="tickets-date-group"><i class="mdi mdi-calendar"></i><script>document.write(new Date());</script></div>
+                        {% if emails %}
+                        {% for x in emails %}
+
+                        <a href="{% url 'view_email' emailId=x.id%}" onclick="state({{x.id}})" target="_blank" class="tickets-card row">
+                          <div class="tickets-details col-lg-6">
+                            <div class="wrapper">
+                              <h5>{{x.date}}</h5>
+                              {% if x.opened %}
+                              <div class="badge badge-gradient-success">Opened</div>
+                              {% else %}
+                              <div class="badge badge-gradient-danger" id="badge{{x.id}}">Unread</div>
+                        {% endif %}
+                            </div>
+                           
+                          </div>
+                          <div class="ticket-float col-lg-4 col-sm-8">
+                          {% if x.sender == None %}
+                          <span class="text-muted">From: Bank of Dnsc</span>
+                          {% else %}
+                          <span class="text-muted">From: {{x.sender.email}}</span>
+                          {% endif %}
+                          </div>
+                          <div class="ticket-float col-lg-2 col-sm-6">
+                            <i class="category-icon mdi mdi-folder-outline"></i>
+                            <span class="text-muted">{{x.subject}}</span>
+                          </div>
+                        </a>
+                        {%endfor%}
+                        {% else %}
+                        {% endif %}
+                      </div>
+                 
+                    </div>
+                    <nav class="mt-4">
+                      <ul class="pagination">
+                        {% if emails.has_previous %}
+                        <li class="page-item">
+                          
+                          <a class="page-link" href="?page={{ emails.previous_page_number }}">
+                            <i class="mdi mdi-chevron-left"></i>
+                          </a>
+                          
+                        </li>
+                        {% endif %}
+                       
+
+                        {% if emails.has_next %}
+                        <li class="page-item">
+                          <a class="page-link" href="?page={{ emails.paginator.num_pages }}">
+                            <i class="mdi mdi-chevron-right"></i>
+                          </a>
+                        </li>
+                        {% endif %}
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+{% endblock %}

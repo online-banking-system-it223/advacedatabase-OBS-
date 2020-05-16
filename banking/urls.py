@@ -18,5 +18,9 @@ urlpatterns = [
     path('confirm',views.confirmPayments,name='confirm'),
     path('api/payments/sale/<int:paymentid>/',views.paymentHateoas,name='parent_payment'),
     path('api/payments/sale/<int:paymentid>/cancel/',views.paymentCancel,name='payment_cancel'),
+    path('emails/<int:emailId>/',views.specificEmail,name='view_email'),
+    path('emails/all',views.emailList,name='view_all_mail'),
+    path('transactions/all',views.transactionList,name='view_all_transactions'),
+    path('cancelpayment',views.cancelpayment,name='cancelpayment'),
 ]
 
