@@ -235,3 +235,32 @@ class cancelledPayments(models.Model):
 	transaction = JSONField()
 	def __str__(self):
 		return self.dateCancelled
+
+		
+#logs for trigger and procedure
+class logs(models.Model):
+	eventname = models.CharField(max_length=50)
+	sender = models.CharField(max_length=50)
+	receiver = models.CharField(max_length=50,null=True)
+	date = models.DateTimeField(('DATE'))
+
+	def __str__(self):
+		return self.date
+
+#this is the functional code for the views
+class recent_mails(models.Model):
+	sender = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=True,related_name="views_sender")
+	receiver = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name="views_receiver")
+	date = models.DateTimeField(('DATE'),auto_now_add=True)
+	subject = models.CharField(max_length=50)
+	body = models.TextField()
+	opened = models.BooleanField(default=False)
+
+	class Meta:
+		ordering = ["-date"]
+		managed = False
+		db_table = 'recent_mails_views'
+
+	def __str__(self):
+		return self.subject
+
