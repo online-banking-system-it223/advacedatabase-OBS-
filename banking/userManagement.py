@@ -225,7 +225,7 @@ class getUserDetails:
 
 	def getUserAccountDetails(self,accountId):
 		try:
-			account1 = account.objects.filter(user_id=accountId)
+			account1 = account.objects.filter(pk=accountId)
 			return account1
 		except ObjectDoesNotExist:
 			return False

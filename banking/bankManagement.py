@@ -195,9 +195,9 @@ class bankingMethod:
 
 		#METHOD FOR DEPOSITING FUNDS
 	def methodDeposit(self,accountId,amount,myUserInstance):
+		
 		userInstance = self.userObjects.getUserAccountDetails(accountId)
 		userCredentials = self.userObjects.getUserInformation(accountId)
-
 		for x in userInstance:
 			accNumber = x.account_number
 			userBalance = x.account_balance
@@ -214,6 +214,7 @@ class bankingMethod:
 		transacObject = self.transac.transac(
 				'DEPOSITED FUNDS',userInstance.first(),amount,userNewBalance,userInstance.first()
 				)
+		
 
 		mailObject = self.transac.mail(
 				None,myUserInstance,"Deposit",
