@@ -77,7 +77,7 @@ class bankingMethod:
 				)
 
 			mailObject = self.transac.mail(
-				None,myUserInstance,"Withdraw",
+				None,myUserInstance,"Transfer",
 				'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
 				'10px;display: block;">'+
 
@@ -107,7 +107,7 @@ class bankingMethod:
 				)
 
 			mailObject = self.transac.mail(
-				None,receiverInstance,"Withdraw",
+				None,receiverInstance.first(),"Received",
 				'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
 				'10px;display: block;">'+
 
@@ -638,9 +638,9 @@ class bankingMethod:
 			"status":True,"requestId":paymentInstance.id,"date":str(datetime.now()),
 			"amount":float(amount),"invoice_id":charge,"confirmed":False,
 			"links":[
-			{'href':f'http://192.168.1.6:8888/api/payments/sale/{paymentInstance.id}',
+			{'href':f'https://bank-of-dnsc.herokuapp.com/api/payments/sale/{paymentInstance.id}',
 				'rel':'self','method':'GET'},
-			{'href':f'http://192.168.1.6:8888/api/payments/sale/{paymentInstance.id}/cancel',
+			{'href':f'https://bank-of-dnsc.herokuapp.com/api/payments/sale/{paymentInstance.id}/cancel',
 			'rel':'cancel','method':'POST'}]}
 
 		return context

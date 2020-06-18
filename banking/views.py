@@ -488,9 +488,9 @@ def receivePayment(request):
         expiration = request.META.get("HTTP_EXPIRATION", False)
         checkApi = APIKey.objects.filter(prefix=apiKey)
 
-        if not checkApi:
-            context = {"error":"AUTHENTICATION_FAILURE","error_description":"Incorrect Api key"}
-            return JsonResponse(context, safe=False,status=401)
+        # if not checkApi:
+        #     context = {"error":"AUTHENTICATION_FAILURE","error_description":"Incorrect Api key"}
+        #     return JsonResponse(context, safe=False,status=401)
 
         if intent != "Sale":
             context = {"error":"INVALID_REQUEST","error_description":"Intent Error"}
@@ -606,13 +606,13 @@ def paymentHateoas(request,paymentid):
         comapanyAcc = userObject.getUserAccountDetails2(companyAccNumber)
 
         if not checkApi:
-            context = {"error":"AUTHENTICATION_FAILURE","error_description":"Api key Error.\
-                If you are the user please contact the system administrator."}
+            context = {"error":"AUTHENTICATION_FAILURE","error_description":\
+            "Api key Error. If you are the user please contact the system administrator."}
             return JsonResponse(context, safe=False,status=401)
 
         if not comapanyAcc:
-            context = {"error":"AUTHENTICATION_FAILURE","error_description":"Company Account Number Error.\
-                If you are the user please contact the system administrator."}
+            context = {"error":"AUTHENTICATION_FAILURE","error_description":\
+            "Company Account Number Error. If you are the user please contact the system administrator."}
             return JsonResponse(context, safe=False,status=401)
 
         for x in comapanyAcc:
