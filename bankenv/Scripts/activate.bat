@@ -80,4 +80,4 @@ set "PATH=%VIRTUAL_ENV%\Scripts;%PATH%"
 
 cd ..
 cd ..
-python manage.py runserver 192.168.1.6:8000
+python manage.py runserver
