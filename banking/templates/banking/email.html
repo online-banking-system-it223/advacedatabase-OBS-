@@ -17,13 +17,26 @@ We keep you and your money safe. Maybe...
 {% block body %}
 
 {% if emails %}
+<div class="page-header">
+  <h3 class="page-title">
+      <span class="page-title-icon bg-gradient-success text-white mr-2">
+          <i class="mdi mdi-email-open"></i>
+      </span> Email </h3>
+  <!-- <nav aria-label="breadcrumb">
+      <ul class="breadcrumb">
+          <li class="breadcrumb-item active" aria-current="page">
+              <span></span>Overview <i class="mdi mdi-alert-circle-outline icon-sm text-primary align-middle"></i>
+          </li>
+      </ul>
+  </nav> -->
+</div>
 
             <div class="row">
               <div class="col-md-12">
                 <div class="card">
                   <div class="card-body">
                     <div class="btn-group">
-                          <button type="button" class="btn btn-md btn-danger" onclick="deleteMail({{emails.id}})"><i class="mdi mdi-delete"></i>Delete</button>
+                          <button type="button" class="btn btn-md btn-danger mb-3" onclick="deleteMail({{emails.id}})"><i class="mdi mdi-delete"></i>Delete</button>
                         </div>
                     <div class="email">
                       <div class="table-responsive mb-4">
@@ -35,7 +48,7 @@ We keep you and your money safe. Maybe...
                       
                                   <tr>
                                     <td style="padding-top: 20px;">
-                                      <img style="float:left;width:170px;" src="{% static 'banking/assets/images/logo.svg'%}" alt="Logo">
+                                      <img style="float:left;width:170px;" src="{% static 'banking/assets/images/obs.png'%}" alt="Logo">
                                     </td>
                                   </tr>
                                <tr>
@@ -54,35 +67,35 @@ We keep you and your money safe. Maybe...
                                   <td>
                                     <table style="float:left;margin-right:15px;" cellpadding="0" cellspacing="0" border="0">
                                       <tbody><tr>
-                                        <td style="background: #e6e6e6;color:#2b80ff;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
+                                        <td style="background: #e6e6e6;color:#19CFB3;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
                                           <img style="display: block;margin: auto;max-width: 8px;" src="{% static 'banking/assets/images/email/fb.png'%}" alt="facebook">
                                         </td>
                                       </tr>
                                     </tbody></table>
                                     <table style="float:left;margin-right:15px;" cellpadding="0" cellspacing="0" border="0">
                                       <tbody><tr>
-                                        <td style="background: #e6e6e6;color:#2b80ff;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
+                                        <td style="background: #e6e6e6;color:#19CFB3;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
                                           <img style="display: block;margin: auto;max-width: 15px;" src="{% static 'banking/assets/images/email/twitter.png'%}" alt="facebook">
                                         </td>
                                       </tr>
                                     </tbody></table>
                                     <table style="float:left;margin-right:15px;" cellpadding="0" cellspacing="0" border="0">
                                       <tbody><tr>
-                                        <td style="background: #e6e6e6;color:#2b80ff;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
+                                        <td style="background: #e6e6e6;color:#19CFB3;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
                                           <img style="display: block;margin: auto;max-width: 15px;" src="{% static 'banking/assets/images/email/youtube.png'%}" alt="facebook">
                                         </td>
                                       </tr>
                                     </tbody></table>
                                     <table style="float:left;margin-right:15px;" cellpadding="0" cellspacing="0" border="0">
                                       <tbody><tr>
-                                        <td style="background: #e6e6e6;color:#2b80ff;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
+                                        <td style="background: #e6e6e6;color:#19CFB3;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
                                           <img style="display: block;margin: auto;max-width: 15px;" src="{% static 'banking/assets/images/email/medium.png'%}" alt="facebook">
                                         </td>
                                       </tr>
                                     </tbody></table>
                                     <table style="float:left;" cellpadding="0" cellspacing="0" border="0">
                                       <tbody><tr>
-                                        <td style="background: #e6e6e6;color:#2b80ff;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
+                                        <td style="background: #e6e6e6;color:#19CFB3;border-radius: 100%;height: 35px;width: 35px; margin-right:20px;">
                                           <img style="display: block;margin: auto;max-width: 15px;" src="{% static 'banking/assets/images/email/slack.png'%}" alt="facebook">
                                         </td>
                                       </tr>
