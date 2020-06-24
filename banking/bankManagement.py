@@ -441,9 +441,13 @@ class bankingMethod:
 			postal_code = x.postal_code
 			email  = x.user_id.email
 
-		companyInstance = self.userObjects.getUserAccountDetails2(sellerAccNumber)
+		companyInstance1 = self.userObjects.getUserAccountDetails2(sellerAccNumber)
 
-		payerInstance = self.userObjects.getUserAccountDetails2(payeraccNumber)
+		for x in companyInstance1:
+			companyInstance = self.userObjects.getMyUser(x.user_id.id)
+
+		for x in payerInstance:
+			payerInstance = self.userObjects.getMyUser(x.user_id.id)
 		
 		companyBalance = self.userObjects.getUserBalance(sellerAccNumber)
 
@@ -454,23 +458,92 @@ class bankingMethod:
 		self.userObjects.updateUserBalance(companyBalancenewBalance,sellerAccNumber)
 
 		#RECORD TRANSACTION
-		transacObject = self.transac.transac(
-			'Paid Something',companyInstance.first(),amount,payerBalance,payerInstance.first()
+		mailObject = self.transac.mail(
+			None,payerInstance.first(),"Payment Confirmation",
+			'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
+			'10px;display: block;">'+
+
+			'<p style="font-family: Roboto;font-size: 14px;font-weight: 500;font-style:'+
+			'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color:'+
+			f' #001737;margin-bottom:10px;">Hi {fname} {lname},</p>'+
+
+            '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:'+
+            'normal;font-stretch: normal;line-height: 1.71;letter-spacing:'+
+            f' normal;color: #001737;">Thank you for your payment confirmation amounting'+
+            f'${round(amount,2)} to {sellerAccNumber}'+
+            '</p>'+
+
+            '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style: '+
+            'normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+            'normal;color: #001737;">Hope you enjoy our service, we are here if you'+
+            ' have any questions, drop us a line at info@bankofdnsc.com anytime.</p>'+
+
+            '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:normal;'+
+            'font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: '+
+            '#001737;margin-bottom: 0px;"> Thank you for using Bank of Dnsc.</p>'+
+
+            '<p style="font-family:Roboto;font-size: 14px;font-weight: '+
+            '500;font-style: normal;font-stretch: normal;line-height: 2.5;'+
+            'letter-spacing: normal;color: #001737;margin-bottom: 0px;">Sincerly: '+
+            ' Bank of Dnsc team</p></td>'
 			)
 
-		transacObject2 = self.transac.transac(
-			"Received Payment",companyInstance.first(),amount,companyBalancenewBalance,companyInstance.first()
+		mailObject = self.transac.mail(
+			None,companyInstance.first(),"Payment Confirmation",
+			'<td style="border-radius: 10px;background: #fff;padding: 30px 60px 20px 60px;margin-top:'+ 
+			'10px;display: block;">'+
+
+			'<p style="font-family: Roboto;font-size: 14px;font-weight: 500;font-style:'+
+			'normal;font-stretch: normal;line-height: 1.71;letter-spacing: normal;color:'+
+			f' #001737;margin-bottom:10px;">Hi Merchant,</p>'+
+
+            '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:'+
+            'normal;font-stretch: normal;line-height: 1.71;letter-spacing:'+
+            f' normal;color: #001737;"> {fname} {lname} Confirmed the payment amounting'+
+            f'${round(amount,2)} to Invoice #: {invoiceId}. Your new balance is {companyBalancenewBalance}'+
+            '</p>'+
+
+            '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style: '+
+            'normal;font-stretch: normal;line-height: 1.71;letter-spacing: '+
+            'normal;color: #001737;">Hope you enjoy our service, we are here if you'+
+            ' have any questions, drop us a line at info@bankofdnsc.com anytime.</p>'+
+
+            '<p style="font-family: Roboto;font-size: 14px;font-weight: normal;font-style:normal;'+
+            'font-stretch: normal;line-height: 1.71;letter-spacing: normal;color: '+
+            '#001737;margin-bottom: 0px;"> Thank you for using Bank of Dnsc.</p>'+
+
+            '<p style="font-family:Roboto;font-size: 14px;font-weight: '+
+            '500;font-style: normal;font-stretch: normal;line-height: 2.5;'+
+            'letter-spacing: normal;color: #001737;margin-bottom: 0px;">Sincerly: '+
+            ' Bank of Dnsc team</p></td>'
 			)
 
-		context = {"id":transacObject2.id,"intent":"Sale","amount":float(amount),"amount_capturable":float(amount),\
-			"amount_received":float(amount),"capture_method":"automatic",\
-			"confirmation_method":"manual","created":str(datetime.now()),"currency":"PHP","fname":fname,\
-			"lname":lname,"mname":mname,"street":street,"city":city,"province":province,\
-			"barrangay":barrangay,"postal_code":postal_code,"email":email,"description":None,\
-			"invoice":invoiceId,"last_payment_error":None,"payment_method_types":"Card","status":True}
+		context = {
+			"intent":"Sale",
+			"amount":float(amount),
+			"amount_capturable":float(amount),
+			"amount_received":float(amount),
+			"capture_method":"automatic",
+			"confirmation_method":"manual",
+			"created":str(datetime.now()),
+			"currency":"PHP","fname":fname,
+			"lname":lname,
+			"mname":mname,
+			"street":street,
+			"city":city,
+			"province":province,\
+			"barrangay":barrangay,
+			"postal_code":postal_code,
+			"email":email,
+			"description":None,
+			"invoice":invoiceId,
+			"last_payment_error":None,
+			"payment_method_types":"Card",
+			"status":True
+			}
 			
 		api = apiTransaction(
-			owner=companyInstance.first(),
+			owner=companyInstance1.first(),
 			parentTransaction=objectInstance.first(),
 			transaction=context
 			)
@@ -547,15 +620,35 @@ class bankingMethod:
 			)
 
 
-		context = {"Msg":"Payment Has been cancelled","date":str(timezone.now()),
-			"data":[{"id":transacObject2.id,
-			"intent":"Cancel","amount":float(amountReceivable),\
-        	"amount_capturable":float(amountReceivable),\
-			"amount_received":0.00,"capture_method":"automatic",\
-			"confirmation_method":"manual","created":str(datetime.now()),"currency":"PHP","fname":fname,\
-			"lname":lname,"mname":mname,"street":street,"city":city,"province":province,\
-			"barrangay":barrangay,"postal_code":postal_code,"email":email,"description":None,\
-			"invoice":invoiceId,"last_payment_error":None,"payment_method_types":"Card","status":True}]}
+		context = {
+			"Msg":"Payment Has been cancelled",
+			"date":str(timezone.now()),
+			"data":
+				[{"id":transacObject2.id,
+				"intent":"Cancel",
+				"amount":float(amountReceivable),
+        		"amount_capturable":float(amountReceivable),
+				"amount_received":0.00,
+				"capture_method":"automatic",
+				"confirmation_method":"manual",
+				"created":str(datetime.now()),
+				"currency":"USD",
+				"fname":fname,
+				"lname":lname,
+				"mname":mname,
+				"street":street,
+				"city":city,
+				"province":province,
+				"barrangay":barrangay,
+				"postal_code":postal_code,
+				"email":email,
+				"description":None,
+				"invoice":invoiceId,
+				"last_payment_error":None,
+				"payment_method_types":"Card",
+				"status":True
+				}]
+			}
 
 		api = apiTransaction(
 			owner=companyInstance.first(),
