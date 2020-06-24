@@ -83,7 +83,7 @@ We keep you and your money safe. Maybe...
                         <tbody>
                             {% if payments %}
                             {% for x in payments %}
-                            <tr>
+                            <tr id="tr{{x.id}}">
                                 <td>{{x.id}}</td>
                                 <td>{{x.invoiceId}}</td>
                                 <td>
