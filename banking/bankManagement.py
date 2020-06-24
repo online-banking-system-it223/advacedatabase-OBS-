@@ -442,7 +442,7 @@ class bankingMethod:
 			email  = x.user_id.email
 
 		companyInstance1 = self.userObjects.getUserAccountDetails2(sellerAccNumber)
-
+		payerInstance = self.userObjects.getUserAccountDetails2(payeraccNumber)
 		for x in companyInstance1:
 			companyInstance = self.userObjects.getMyUser(x.user_id.id)
 
