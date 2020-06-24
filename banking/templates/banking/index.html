@@ -15,23 +15,10 @@ We keep you and your money safe. Maybe...
 {% include 'banking/modals.html' %}
 {% endblock %}
 {% block body %}
-<div class="page-header">
-    <h3 class="page-title">
-        <span class="page-title-icon bg-gradient-success text-white mr-2">
-            <i class="mdi mdi-home"></i>
-        </span> Dashboard </h3>
-    <!-- <nav aria-label="breadcrumb">
-        <ul class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">
-                <span></span>Overview <i class="mdi mdi-alert-circle-outline icon-sm text-primary align-middle"></i>
-            </li>
-        </ul>
-    </nav> -->
-</div>
 <div class="row">
     {%for x in account %}
     <div class="col-md-4 stretch-card grid-margin">
-        <div class="card bg-gradient-success card-img-holder text-white">
+        <div class="card bg-gradient-danger card-img-holder text-white">
             <div class="card-body">
                 <img src="{% static 'banking/assets/images/dashboard/circle.svg'%}" class="card-img-absolute" alt="circle-image" />
                 <h4 class="font-weight-normal mb-3">Account Balance<i class="mdi mdi-chart-line mdi-24px float-right"></i>
@@ -42,7 +29,7 @@ We keep you and your money safe. Maybe...
     </div>
     {%endfor%}
     <div class="col-md-4 stretch-card grid-margin">
-        <div class="card bg-gradient-success card-img-holder text-white">
+        <div class="card bg-gradient-info card-img-holder text-white">
             <div class="card-body">
                 <img src="{% static 'banking/assets/images/dashboard/circle.svg'%}" class="card-img-absolute" alt="circle-image" />
                 <h4 class="font-weight-normal mb-3">Total Loaned Amount<i class="mdi mdi-bookmark-outline mdi-24px float-right"></i>
@@ -118,7 +105,7 @@ We keep you and your money safe. Maybe...
                         <input type="password" style="font-size: 22px; color: black; border: 0 !important; cursor: pointer; background: transparent !important;"  readonly name="key" id="key" class="form-control" value="{{x.api_key}}" onclick="showkey()">
                         {%endfor%}
                         <div class="mt-3 ">
-                            <button type="button" class="btn btn-success" id="copyKey" >
+                            <button type="button" class="btn btn-primary" id="copyKey" >
                                
                             Copy</button>
                         </div>
@@ -148,7 +135,7 @@ We keep you and your money safe. Maybe...
     </div>
 
       <div class="col-md-12 stretch-card grid-margin">
-        <div class="card bg-gradient-success card-img-holder text-white">
+        <div class="card bg-gradient-info card-img-holder text-white">
             <div class="card-body">
                 <img src="{% static 'banking/assets/images/dashboard/circle.svg'%}" class="card-img-absolute" alt="circle-image" />
                 <h4 class="font-weight-normal mb-3">Account Details<i class="mdi mdi-diamond mdi-24px float-right"></i>
