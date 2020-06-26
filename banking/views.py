@@ -37,7 +37,7 @@ def emailList(request):
         user = userObject.getUserInformation(request.user.id)
         account1 = userObject.getUserAccountDetails(request.user.id)
         emails1 = emails.objects.filter(receiver=request.user.id)
-        newMails = emails.objects.filter(receiver=request.user.id)[:5]
+        newMails = emails.objects.filter(receiver=request.user.id,opened=False)[:5]
         paginator = Paginator(emails1, 25)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -65,7 +65,7 @@ def transactionList(request):
         account1 = userObject.getUserAccountDetails(request.user.id)
         trans = transaction.objects.filter(transacOwner_id=request.user.id)
         print(request.user.id)
-        newMails = emails.objects.filter(receiver=request.user.id)[:5]
+        newMails = emails.objects.filter(receiver=request.user.id,opened=False)[:5]
         paginator = Paginator(trans, 25)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -125,7 +125,7 @@ def index(request):
         account1 = userObject.getUserAccountDetails(request.user.id)
         for x in account1:
            accountId = x.id
-        newMails = emails.objects.filter(receiver=request.user.id)[:5]
+        newMails = emails.objects.filter(receiver=request.user.id,opened=False)[:5]
         loans = userObject.getUserTotalLoans(request.user.id)
         totalLoans = userObject.getUserTotalAmountofLoans(request.user.id)
         transactions = userObject.getUserTransactionList(accountId)
