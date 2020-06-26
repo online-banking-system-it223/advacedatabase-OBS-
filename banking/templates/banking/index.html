@@ -83,7 +83,7 @@ We keep you and your money safe. Maybe...
                         <tbody>
                             {% if payments %}
                             {% for x in payments %}
-                            <tr id="tr{{x.id}}">
+                            <tr id="trid{{x.id}}">
                                 <td>{{x.id}}</td>
                                 <td>{{x.invoiceId}}</td>
                                 <td>
@@ -93,7 +93,8 @@ We keep you and your money safe. Maybe...
                                 <td>{{x.dateCreated}}</td>
                                 <td>{{x.seller.account_number}}</td>
                                 <td>
-                                    <button class="btn btn-success" onclick="confirmpayment({{x.id}})">Confirm</button>
+                                    <button class="btn btn-success" 
+                                    onclick="confirmpayment({{x.id}})">Confirm</button>
                                     <button class="btn btn-danger" onclick="cancelpayment({{x.id}})">Cancel</button>
                                 </td>
                             </tr>

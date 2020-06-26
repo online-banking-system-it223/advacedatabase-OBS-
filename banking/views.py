@@ -236,7 +236,10 @@ def fundsDrawing(request):
             userObject = getUserDetails()
             #PUT THE DATA IN HERE
             amount = decimal.Decimal(request.POST.get("amount",0))
-            userSecretCode = int(request.POST.get("securecode",0))
+            try:
+                userSecretCode = int(request.POST.get("securecode",0))
+            except ValueError:
+                return HttpResponse("Secure Code Error!",status=403)
             usercode = request.user.secure_code
 
             if userSecretCode != usercode:
@@ -273,7 +276,11 @@ def fundsDeposit(request):
             #PUT THE DATA IN HERE
             userObject = getUserDetails()
             amount = decimal.Decimal(request.POST.get("amount",0))
-            userSecretCode = int(request.POST.get("securecode",0))
+            try:
+                userSecretCode = int(request.POST.get("securecode",0))
+            except ValueError:
+                return HttpResponse("Secure Code Error!",status=403)
+           
             usercode = request.user.secure_code
 
             if userSecretCode != usercode:
@@ -303,7 +310,11 @@ def loanFunds(request):
             bankObject = bankingMethod()
             userObject = getUserDetails()
             amount = decimal.Decimal(request.POST.get("amount",0))
-            userSecretCode = int(request.POST.get("securecode",0))
+            try:
+                userSecretCode = int(request.POST.get("securecode",0))
+            except ValueError:
+                return HttpResponse("Secure Code Error!",status=403)
+
             yearsToPay = int(request.POST.get("yearstoPay",0))
             usercode = request.user.secure_code
 
@@ -352,7 +363,11 @@ def loanPayment(request):
             userObject = getUserDetails()
             amount = decimal.Decimal(request.POST.get("amount",0))
             userSecretCode = int(request.POST.get("securecode",0))
-            usercode = request.user.secure_code
+            try:
+                userSecretCode = int(request.POST.get("securecode",0))
+            except ValueError:
+                return HttpResponse("Secure Code Error!",status=403)
+
             account1 = userObject.getUserAccountDetails(request.user.id)
 
             if userSecretCode != usercode:
@@ -408,7 +423,11 @@ def fundsTransfer(request):
             userObject = getUserDetails()
             #PUT THE DATA IN HERE
             amount = decimal.Decimal(request.POST.get("amount",0))
-            userSecretCode = int(request.POST.get("securecode",0))
+            try:
+                userSecretCode = int(request.POST.get("securecode",0))
+            except ValueError:
+                return HttpResponse("Secure Code Error!",status=403)
+                
             receiverAcc = int(request.POST.get("useracc",0))
             usercode = request.user.secure_code
             account1 = userObject.getUserAccountDetails(request.user.id)
@@ -486,11 +505,11 @@ def receivePayment(request):
         apiKey = request.META.get("HTTP_X_API_KEY", False)
         charge = request.META.get("HTTP_INVOICEID", False)
         expiration = request.META.get("HTTP_EXPIRATION", False)
-        checkApi = APIKey.objects.filter(prefix=apiKey)
+        checkApi = account.objects.filter(api_key=apiKey)
 
-        # if not checkApi:
-        #     context = {"error":"AUTHENTICATION_FAILURE","error_description":"Incorrect Api key"}
-        #     return JsonResponse(context, safe=False,status=401)
+        if not checkApi:
+            context = {"error":"AUTHENTICATION_FAILURE","error_description":"Incorrect Api key"}
+            return JsonResponse(context, safe=False,status=401)
 
         if intent != "Sale":
             context = {"error":"INVALID_REQUEST","error_description":"Intent Error"}
@@ -602,7 +621,7 @@ def paymentHateoas(request,paymentid):
         userObject = getUserDetails()
         apiKey = request.META.get("HTTP_X_API_KEY", False)
         companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", False)
-        checkApi = APIKey.objects.filter(prefix=apiKey)
+        checkApi = account.objects.filter(api_key=apiKey)
         comapanyAcc = userObject.getUserAccountDetails2(companyAccNumber)
 
         if not checkApi:
@@ -645,7 +664,7 @@ def paymentRefund(request):
         userObject = getUserDetails()
         apiKey = request.META.get("HTTP_X_API_KEY", False)
         companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", False)
-        checkApi = APIKey.objects.filter(prefix=apiKey)
+        checkApi = account.objects.filter(api_key=apiKey)
         comapanyAcc = userObject.getUserAccountDetails2(companyAccNumber)
 
         if not checkApi:
@@ -675,7 +694,7 @@ def paymentCancel(request,paymentid):
         bankObject = bankingMethod()
         apiKey = request.META.get("HTTP_X_API_KEY", False)
         companyAccNumber = request.META.get("HTTP_ACCOUNTNUMBER", False)
-        checkApi = APIKey.objects.filter(prefix=apiKey)
+        checkApi = account.objects.filter(api_key=apiKey)
         comapanyAcc = userObject.getUserAccountDetails2(companyAccNumber)
 
         if not checkApi:
