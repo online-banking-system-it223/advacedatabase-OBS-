@@ -16,7 +16,7 @@ $(document).ready(function() {
         Swal.fire({
             title: 'Pay Loan',
             html: '<input id="amount1" placeholder="Amount" type="number" required class="swal2-input">' +
-                '<input id="code1" type="password" placeholder="Secret Code" required class="swal2-input">',
+                '<input id="code1" type="number" placeholder="Secret Code" required class="swal2-input">',
             focusConfirm: false,
             showCancelButton: true,
             showLoaderOnConfirm: true,
@@ -75,7 +75,7 @@ $(document).ready(function() {
         Swal.fire({
             title: 'Transfer',
             html: '<input id="amount1" placeholder="Amount" type="number" required class="swal2-input">' +
-                '<input id="code1" type="password" placeholder="Secret Code" required class="swal2-input">' +
+                '<input id="code1" type="number" placeholder="Secret Code" required class="swal2-input">' +
                 '<input id="accNumber" placeholder="Receiver Account Number" type="number" required class="swal2-input">',
             focusConfirm: false,
             showCancelButton: true,
@@ -141,7 +141,7 @@ $(document).ready(function() {
         Swal.fire({
             title: 'Withdraw Money',
             html: '<input id="amount1" placeholder="AMOUNT" type="number" required class="swal2-input">' +
-                '<input id="code1" type="password" placeholder="Secret Code" required class="swal2-input">',
+                '<input id="code1" type="number" placeholder="Secret Code" required class="swal2-input">',
             focusConfirm: false,
             showCancelButton: true,
             showLoaderOnConfirm: true,
@@ -199,7 +199,7 @@ $(document).ready(function() {
         Swal.fire({
             title: 'Loan Money',
             html: '<input id="amount" type="number" placeholder="Amount" required class="swal2-input">' +
-                '<input id="code" type="password" placeholder="Secret Code" required class="swal2-input">' +
+                '<input id="code" type="number" placeholder="Secret Code" required class="swal2-input">' +
                 '<input id="yearsToPay" type="number" placeholder="Years to pay" required class="swal2-input">',
             focusConfirm: false,
             showCancelButton: true,
@@ -271,7 +271,7 @@ $("#deposit").click(function() {
     Swal.fire({
         title: 'Deposit Money',
         html: '<input id="amount" type="number" placeholder="Amount" required class="swal2-input">' +
-            '<input id="code" type="password" placeholder="Secret Code" required class="swal2-input">',
+            '<input id="code" type="number" placeholder="Secret Code" required class="swal2-input">',
         focusConfirm: false,
         showCancelButton: true,
         showLoaderOnConfirm: true,
