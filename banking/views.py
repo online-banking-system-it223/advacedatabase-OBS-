@@ -363,6 +363,7 @@ def loanPayment(request):
             userObject = getUserDetails()
             amount = decimal.Decimal(request.POST.get("amount",0))
             userSecretCode = int(request.POST.get("securecode",0))
+            usercode = request.user.secure_code
             try:
                 userSecretCode = int(request.POST.get("securecode",0))
             except ValueError:
