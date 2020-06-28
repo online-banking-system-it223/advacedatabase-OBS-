@@ -265,8 +265,8 @@ class recent_mails(models.Model):
 		return self.subject
 
 class readed_mails(models.Model):
-	sender = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=True,related_name="views_sender")
-	receiver = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name="views_receiver")
+	sender = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=True,related_name="views_readed_sender")
+	receiver = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name="views_readed_receiver")
 	date = models.DateTimeField(('DATE'),auto_now_add=True)
 	subject = models.CharField(max_length=50)
 	body = models.TextField()

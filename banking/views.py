@@ -607,10 +607,10 @@ def cancelpayment(request):
 
         bankObject = bankingMethod()
         paymentId = strip_tags(request.POST.get("paymentid",None))
-        paymentInstanceTrue = ApiPayments.objects.filter(pending=False,pk=paymentid,deleted=False)
+        paymentInstanceTrue = ApiPayments.objects.filter(pending=False,pk=paymentId,deleted=False)
         if paymentInstanceTrue:
             
-            bankInstance = bankObject.cancelPayment(paymentid,paymentInstanceTrue)
+            bankInstance = bankObject.cancelPayment(paymentId,paymentInstanceTrue)
             return HttpResponse("Deleted",status=200)
         else:
             return HttpResponse("Error, Something went wrong. Please Reload the page to continue",status=500)
