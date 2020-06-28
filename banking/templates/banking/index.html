@@ -143,6 +143,7 @@ We keep you and your money safe. Maybe...
                 <span class="mr-2" style="font-size: 22px; color: white; border: 0 !important; cursor: pointer;">CVV:</span><input type="password" style="font-size: 22px; color: white; border: 0 !important; cursor: pointer; background: transparent !important;"  readonly name="cvv" id="cvv" class="" value="" 
                 onclick="showkey1()">
                 <script> $("#cvv").val({{x.cvv}})</script>
+                <p class="mb-1">Expiration Date: {{cardDate}}</p>
                 {% endfor %}
             </div>
         </div>

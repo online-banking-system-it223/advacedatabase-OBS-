@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from banking.models import MyUser, account, bankingCard, transaction, loans , apiTransaction
+from banking.models import MyUser, account, bankingCard, transaction, loans , apiTransaction,recent_mails,readed_mails
 
 
 class UserCreationForm(forms.ModelForm):
@@ -85,6 +85,8 @@ admin.site.register(bankingCard)
 admin.site.register(transaction)
 admin.site.register(loans)
 admin.site.register(apiTransaction)
-# ... and, since we're not using Django's built-in permissions,
+admin.site.register(readed_mails)
+admin.site.register(recent_mails)
+
 # unregister the Group model from admin.
 admin.site.unregister(Group)

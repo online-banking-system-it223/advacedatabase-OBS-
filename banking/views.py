@@ -150,7 +150,9 @@ def index(request):
             newExpiration = userObject1.addYears()
             newCvv = userObject1.create_unique_cvc()
             bankingCard.objects.filter(card_number=cardNumbah).update(card_number=newCard,cvv=newCvv,expiration_date=newExpiration)
-
+            cardDetails = userObject.getUserCardDetails(accountId)
+            for x in cardDetails:
+                cardDate = x.expiration_date
         if not user:
             user = False
     
@@ -163,7 +165,8 @@ def index(request):
         "totalLoaned":loanedTotal,
         "Card":cardDetails,
         "payments":payments,
-        "newmails":newMails}
+        "newmails":newMails,
+        "cardDate":cardDate}
 
         return render(request, 'banking/index.html',context)
     else:
@@ -493,7 +496,6 @@ def credentialsInsert(request):
         return redirect('index')
 
 #API ZONE DO NOT ENTER
-
 @csrf_exempt
 def receivePayment(request):
 
@@ -592,7 +594,6 @@ def confirmPayments(request):
             return HttpResponse("Something Went Wrong. Please try again later",status=403)
         bankObject = bankingMethod()
         bankInstance = bankObject.confirmPendingPayment(paymentId)
-        print(bankInstance)
         if bankInstance == 2:
             return HttpResponse("This Payment is already Confirmed",status=403)
 
