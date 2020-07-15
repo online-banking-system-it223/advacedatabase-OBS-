@@ -25,7 +25,7 @@ SECRET_KEY = '7d^c&&ag94n8y2#@y$ckv-yhs^%ylhl^z@+$#(6a-zocr&zh#-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','bank-of-dnsc.herokuapp.com']
+ALLOWED_HOSTS = ['127.0.0.1','bank-of-dnsc.herokuapp.com','www.academia.press']
 
 AUTH_USER_MODEL = 'banking.MyUser'
 
